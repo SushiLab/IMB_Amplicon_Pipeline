@@ -1,0 +1,49 @@
+
+
+###################
+##USER PARAMETERS##
+###################
+data_dir: '/your/path/to/data/processed/*YOURFOLDER*/'
+sample_file: 'samples'
+blacklist: 'blacklist'
+
+
+#######################
+### USER PARAMETERS ###
+#######################
+
+
+FORWARD_PRIMER_NAME: '515f_parada'
+REVERSE_PRIMER_NAME: '806r_caporaso'
+QC_MINLEN: '111'
+QC_TRUNC_R1: '161'
+QC_TRUNC_R2: '121'
+QC_MAXEE: '2'
+QC_TRUNCQ: '2'
+LE_NBASES: '1e7'
+
+
+################
+##STEPS TO RUN##
+################
+
+runCutadapt: True
+runQC: True
+runLearnErrors: True
+runInference: True
+runMergeReads: True
+runRemoveBimeras: True
+runReadStats: True
+runASVTax: True
+runOTUTax: True
+
+#######################
+##END USER PARAMETERS##
+#######################
+
+
+
+# Standard parameters. Dont change these!!!
+
+silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
+primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
