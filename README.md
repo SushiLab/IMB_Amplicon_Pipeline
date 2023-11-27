@@ -1,15 +1,10 @@
-# General\_METAB\_ANALYSIS PIPELINE
+# 16S pipeline from the Sunagawa Lab
 
-**AUTHOR: Hans**
+**AUTHORS: Hans, Lilith**
 
 **VERSION: 17.01.2022**
 
-This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and consists of the following steps:
-
-
-## Table of contents
-
-TODO
+This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and the code is from the now deprecated GENERAL_METAB_ANALYSIS_PAN pipeline. The pipeline consists of the following steps:
 
 ## Get/Name the data
 
@@ -293,22 +288,6 @@ snakemake -s /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_AN
 ```
 The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather then hours.
 
-## The output file
-### Where to find
-
-TODO
-### Format/How to load into R 
-
-TODO Guillem
-- load table
-- alpha/beta div by default
-## Additional:
-### Merging of tables
-
-TODO GUILLEM
-
-- Can only merge with same primer pairs
-- Parameters do not need to match 100%
 ## Limitations
 ### Mixed orientations 
 
@@ -317,4 +296,13 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 ### N
 
 Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However this is not covered in this pipeline.
- 
+
+## TODO
+- Table of Contents
+- Where to find the output file
+- Format/How to load into R
+	- load table
+	- alpha/beta div by default
+ - Merging of tables
+ 	- Can only merge with same primer pairs
+	- Parameters do not need to match 100%
