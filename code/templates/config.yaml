@@ -3,9 +3,9 @@
 ###################
 ##USER PARAMETERS##
 ###################
-data_dir: '/your/path/to/data/processed/*YOURFOLDER*/'
+data_dir: '/path/to/your/data/'
 sample_file: 'samples'
-blacklist: 'blacklist'
+blocklist: 'blocklist'
 
 
 #######################
@@ -36,6 +36,7 @@ runRemoveBimeras: True
 runReadStats: True
 runASVTax: True
 runOTUTax: True
+runUSEARCH: True
 
 #######################
 ##END USER PARAMETERS##

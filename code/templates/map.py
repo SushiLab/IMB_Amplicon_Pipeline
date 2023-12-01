@@ -1,8 +1,8 @@
 import glob
 import os
 
-source_folder = '/your/path/to/data/processed/*YOURFOLDER*/*DATAFOLDER*/'
-dest_folder = '/your/path/to/data/processed/*DEPARTMENT*/*YOURFOLDER*/0raw/'
+source_folder = '/path/to/your/data/*DATAFOLDER*/'
+dest_folder = '/path/to/your/data/0raw/'
 
 print('set -euxo pipefail')
 r1_files = glob.glob(source_folder + '*/*raw_1.fq.gz') # change this

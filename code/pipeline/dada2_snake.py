@@ -1,12 +1,11 @@
 import glob
 
-
 '''
 FILES + FOLDERS + PARAMS
 '''
 DATA_DIR = Path(config['data_dir'])
 SAMPLE_FILE = Path(config['sample_file'])
-BLACKLIST_FILE = Path(config['blacklist'])
+BLOCKLIST_FILE = Path(config['blocklist'])
 PRIMERS_FILE = Path(config['primers'])
 SILVA_TRAINING_FILE = Path(config['silva_training'])
 FORWARD_PRIMER_NAME = config['FORWARD_PRIMER_NAME']
@@ -17,7 +16,7 @@ QC_TRUNC_R2 = config['QC_TRUNC_R2']
 QC_MAXEE = config['QC_MAXEE']
 QC_TRUNCQ = config['QC_TRUNCQ']
 LE_NBASES = config['LE_NBASES']
-SCRIPTFOLDER = '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/code/pipeline/'
+SCRIPTFOLDER = '../16S_pipeline/code/pipeline/'
 
 runCutadapt = config['runCutadapt']
 runQC = config['runQC']
@@ -28,8 +27,7 @@ runRemoveBimeras = config['runRemoveBimeras']
 runReadStats = config['runReadStats']
 runASVTax = config['runASVTax']
 runOTUTax = config['runOTUTax']
-
-
+#runUSEARCH = config['runUSEARCH']
 
 
 def getPrimers(primer_file):
@@ -58,13 +56,14 @@ DADAFOLDER_NAME = '4sampleInference'
 MERGEREADSFOLDER_NAME = '5mergeReads'
 BIMERAREMOVALFOLDER_NAME = '6bimeraRemoval'
 TAXONOMYFOLDER_NAME = '7taxonomy'
+#USEARCHFOLDER_NAME = "8uparsetax"
 
 SAMPLES = []
 if SAMPLE_FILE.is_file():
     SAMPLES = set(SAMPLE_FILE.read_text().splitlines())
-if BLACKLIST_FILE.is_file():
-    BLACKLIST = set(BLACKLIST_FILE.read_text().splitlines())
-    for blk in BLACKLIST:
+if BLOCKLIST_FILE.is_file():
+    BLOCKLIST = set(BLOCKLIST_FILE.read_text().splitlines())
+    for blk in BLOCKLIST:
         SAMPLES.discard(blk)
 if len(SAMPLES) == 0:
     exit(1)
@@ -234,11 +233,15 @@ OTU_ASV_FILES.append(otu_file)
 OTU_ASV_FILES.append(marker_file)
 
 
+"""# usearch
+USEARCH_FILES = DATA_DIR.joinpath(USEARCHFOLDER_NAME, 'uparse.done')
+USEARCH_DIR = DATA_DIR.joinpath(USEARCHFOLDER_NAME)
+"""
+
 # Final Insert stats
 
 insert_counts_file = DATA_DIR.joinpath(f'{PROJECT_NAME}.insert.counts')
 STATS_FILES_TOT.append(insert_counts_file)
-
 
 if not runCutadapt:
     CUTADAPT_FILES = []
@@ -259,6 +262,9 @@ if not runASVTax:
     TAXONOMY_FILES = []
 if not runOTUTax:
     OTU_ASV_FILES = []
+"""if not runUSEARCH:
+    UPARSE_PATH = []
+"""
 
 rule all:
     input:
@@ -271,7 +277,9 @@ rule all:
         BIMERA_FILES,
         TAXONOMY_FILES,
         OTU_ASV_FILES
-
+"""        STATS_FILES_TOT,
+        USEARCH_FILES
+"""
 
 rule insert_stats:
     input:
@@ -604,3 +612,34 @@ rule seqtab_stats:
         '''
         Rscript {SCRIPTFOLDER}seqtab_stats.R {input.rds_file} {output.stats}
         '''
+
+
+#rule ref_assignment:
+#    input:
+#        asvtab = '{path}/'+PROJECT_NAME+'.asvs.tsv',
+#        asvs_fasta = '{path}/'+PROJECT_NAME+'.asvs.fasta'
+#    output:
+#        asvs_ref = '{path}/'+PROJECT_NAME+'.refs.tsv',
+#        marker = touch('{path}/'+PROJECT_NAME+'.refs.done')
+#    params:
+#        ref_fasta = REFERENCE_SEQUENCE_FILE,
+#    log:
+#        log = '{path}/'+PROJECT_NAME+'.refassign.log',
+#    threads:
+#        32
+#    shell:
+#        '''
+#        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} &> {log.log}
+#        '''
+
+#rule uparse:
+#    input:
+#        input_d = DATA_DIR
+#    output:
+#        done_file = USEARCH_FILES,
+#        output_d = USEARCH_DIR
+#    shell:
+#        """
+#        uparse.sh -i {input.input_d} -o {output.done_file} -d {output.output_d}
+#        """
+

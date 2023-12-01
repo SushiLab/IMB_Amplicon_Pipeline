@@ -40,7 +40,7 @@ with open(config_file) as handle:
 
 data_dir = yaml_data['data_dir']
 samples = yaml_data['sample_file']
-blacklist = yaml_data['blacklist']
+blocklist = yaml_data['blocklist']
 primer_file = yaml_data['primers']
 
 
@@ -69,9 +69,6 @@ def whereAreTheNs(file, required_read_length):
                     positions[position] += 1
     total_N = sum(list(positions.values()))
     return total_N, sequences_with_N, positions
-                    
-
-
 
 def getReadlength(file):
     reads = []
@@ -95,15 +92,15 @@ def detreads_and_bases(f1, f2):
     return reads, inserts, bases
 
 SAMPLENAMES = set()
-BLACKLISTNAMES = set()
-with open(blacklist) as handle:
+BLOCKLISTNAMES = set()
+with open(blocklist) as handle:
     for line in handle:
-        BLACKLISTNAMES.add(line.strip())
+        BLOCKLISTNAMES.add(line.strip())
 
 with open(samples) as handle:
     for line in handle:
         samplename = line.strip()
-        if samplename not in BLACKLISTNAMES:
+        if samplename not in BLOCKLISTNAMES:
             SAMPLENAMES.add(samplename)
             
 
