@@ -271,9 +271,11 @@ if not runUSEARCH:
 if not runDefCom:
     DEFCOM_FILES = []
 
-# In general the rules are run in the following order:
-# cutadapt, read_stats, dada2_filterAndTrim, qc_stats, r1r2_sample_files, dada2_learnErrors, dada2_inference,
-# seqtab_stats, dada2_mergeReads, bimera_removal, taxonomy, otu_asv, ref_assignment, insert_stats, uparse
+"""
+In general the rules are run in the following order:
+cutadapt, read_stats, dada2_filterAndTrim, qc_stats, r1r2_sample_files, dada2_learnErrors, dada2_inference,
+seqtab_stats, dada2_mergeReads, bimera_removal, taxonomy, otu_asv, ref_assignment, insert_stats, uparse
+"""
 
 rule all:
     input:
@@ -292,6 +294,9 @@ rule all:
 
 
 rule insert_stats:
+    """
+    Extract stats and write to file
+    """
     input:
         stats_files=STATS_FILES,
         otu_asv_files=OTU_ASV_FILES,
@@ -502,6 +507,9 @@ rule dada2_inference:
         '''
 
 rule dada2_mergeReads:
+    """
+    merge the reads
+    """
     input:
         marker_r1='{path}/' + DADAFOLDER_NAME + '/R1.dada.done',
         marker_r2='{path}/' + DADAFOLDER_NAME + '/R2.dada.done',
@@ -534,6 +542,9 @@ rule dada2_mergeReads:
 
 
 rule bimera_removal:
+    """
+    Remove bimeric sequences that are formed de novo during the sequencing process.
+    """
     input:
         marker='{path}/' + MERGEREADSFOLDER_NAME + '/mergereads.done',
         merged_seqtab='{path}/' + MERGEREADSFOLDER_NAME + \
@@ -559,6 +570,9 @@ rule bimera_removal:
         '''
 
 rule taxonomy:
+    """
+    load an RDS file containing a sequence table and assign the taxonomy of ASVs/OTUs using IDTAXA
+    """
     input:
         tab_nobim='{path}/' + BIMERAREMOVALFOLDER_NAME + \
                   '/seqtab.nobimera.rds',
@@ -584,6 +598,9 @@ rule taxonomy:
 
 
 rule otu_asv:
+    """
+    loads an ASV table and uses the UPARSE algorithm to cluster ASVs into OTUs and produce an OTU table
+    """
     input:
         asv_table='{path}/' + TAXONOMYFOLDER_NAME + '/temp_asvs.tsv',
         marker='{path}/' + TAXONOMYFOLDER_NAME + '/temp_asvs.done'
@@ -634,6 +651,9 @@ rule read_stats:
        '''
 
 rule seqtab_stats:
+    """
+    Create stats file from sequence table created by running dada2 inference.
+    """
     input:
         rds_file='{sample}.rds'
     output:
@@ -646,6 +666,9 @@ rule seqtab_stats:
 
 
 rule ref_assignment:
+    """
+    perform sequence alignment between ASVs (Amplicon Sequence Variants) and a reference sequence database
+    """
     input:
         asvtab='{path}/' + PROJECT_NAME + '.asvs.tsv',
         asvs_fasta='{path}/' + PROJECT_NAME + '.asvs.fasta'
