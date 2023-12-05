@@ -44,18 +44,20 @@ blocklist = yaml_data['blocklist']
 primer_file = yaml_data['primers']
 
 
-with open(primer_file) as handle:
-    
-    primers = {}
-    primer_pairs = []
-    for line in handle:
-        splits = line.strip().split()
-        if line.startswith('#'):
-            forward_primer = primers[splits[1]]
-            reverse_primer = primers[splits[-1]]
-            primer_pairs.append((forward_primer, reverse_primer))
-        else:
-            primers[splits[2]] = splits[1:]
+if yaml_data.get('FORWARD_PRIMER_SEQUENCE') is not None:
+    primer_pairs = [([yaml_data['FORWARD_PRIMER_SEQUENCE'], yaml_data['FORWARD_PRIMER_NAME'], 'vn'], [yaml_data['REVERSE_PRIMER_SEQUENCE'], yaml_data['REVERSE_PRIMER_NAME'], 'vn'])]
+else:
+    with open(primer_file) as handle:
+        primers = {}
+        primer_pairs = []
+        for line in handle:
+            splits = line.strip().split()
+            if line.startswith('#'):
+                forward_primer = primers[splits[1]]
+                reverse_primer = primers[splits[-1]]
+                primer_pairs.append((forward_primer, reverse_primer))
+            else:
+                primers[splits[2]] = splits[1:]
 
 def whereAreTheNs(file, required_read_length):
     positions = collections.Counter()
@@ -139,8 +141,9 @@ if True:
         cutadapt_r1_file = temp_folder + f'cutadapt_{forward_primer[1]}___{forward_primer[2]}---{reverse_primer[1]}___{reverse_primer[2]}_R1.fastq'
         cutadapt_r2_file = temp_folder + f'cutadapt_{forward_primer[1]}___{forward_primer[2]}---{reverse_primer[1]}___{reverse_primer[2]}_R2.fastq'
         cutadapt_log_file = temp_folder + f'cutadapt_{forward_primer[1]}___{forward_primer[2]}---{reverse_primer[1]}___{reverse_primer[2]}.log'
-        
-        cutadapt_command_stub = f'cutadapt -O 12 --discard-untrimmed -g {forward_primer[0]} -G {reverse_primer[0]} -o {cutadapt_r1_file} -p {cutadapt_r2_file} {raw_r1_file} {raw_r2_file} -j {threads} --pair-adapters --minimum-length 75 &> {cutadapt_log_file}'
+
+        allowUntrimmed = "--discard-untrimmed" if not yaml_data['allowUntrimmed'] else ""
+        cutadapt_command_stub = f'cutadapt -O 12 {allowUntrimmed} -g {forward_primer[0]} -G {reverse_primer[0]} -o {cutadapt_r1_file} -p {cutadapt_r2_file} {raw_r1_file} {raw_r2_file} -j {threads} --pair-adapters --minimum-length 75 &> {cutadapt_log_file}'
         if True:
             subprocess.check_call(cutadapt_command_stub, shell=True)
         pairs_written = getPairsWritten(cutadapt_log_file)
@@ -156,13 +159,15 @@ if True:
             readlength_r2 = getReadlength(cutadapt_r2_file)
             readlength_r1_avg = int(sum(readlength_r1)/len(readlength_r1))
             readlength_r2_avg = int(sum(readlength_r2)/len(readlength_r2))
-            estimated_insert_size = int(reverse_primer[1].split('r')[0]) - int(forward_primer[1].split('f')[0]) - len(forward_primer[0]) - len(reverse_primer[0]) + 1
+            estimated_insert_size = abs(
+                int(re.findall(r'\d+', reverse_primer[1])[0]) - int(re.findall(r'\d+', forward_primer[1])[0])) - len(
+                forward_primer[0]) - len(reverse_primer[0]) + 1
             planned_overlap = 45
             required_read_length = int((2 * planned_overlap + estimated_insert_size)/2) 
             r1_required_read_length = required_read_length + 20
             r2_required_read_length = required_read_length - 20
             qcminlength = r2_required_read_length - 10
-            maxees = [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5]
+            maxees = [0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
             r2_total_N, r2_sequences_with_N, r2_N_positions = whereAreTheNs(cutadapt_r2_file, r2_required_read_length)
             r1_total_N, r1_sequences_with_N, r1_N_positions = whereAreTheNs(cutadapt_r1_file, r1_required_read_length)
             for maxee in maxees:

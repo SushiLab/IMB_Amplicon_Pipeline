@@ -1,37 +1,25 @@
-# General\_METAB\_ANALYSIS PIPELINE
-
-**AUTHOR: Hans**
-
-**VERSION: 17.01.2022**
-
-This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and consists of the following steps:
+# 16S pipeline from the Sunagawa Lab
+### Important updates
+- "blacklist" is now called "blocklist"
+- The new added UPARSE function can take a few hours to run depending on data size.
 
 
-## Table of contents
-
-TODO
+**AUTHORS: Hans, Lilith**
+**Documentation was last updated on 2023-12-04.**
+This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and the code is from the now deprecated GENERAL_METAB_ANALYSIS_PAN pipeline. The pipeline consists of the following steps:
 
 ## Get/Name the data
 
-The pipeline has been written to deal with short read Illumina sequencing data in the format or paired-end fastq files. All runs are processed together so that files/data that comes from differnet batches/flowcells/flowlanes have to be ran individually, e.g, as a different `(Sub)Project`.  
-
-### Project/Subproject
-
-
-All samples/files that belong to the same project grouped together under the umbrella `project`, e.g. `PHRT`. Each batch/flowcell/lane then generates a `subproject` which contains the actual analysis files. E.g. For `PHRT` we have sequenced twice, once at FGCZ and once at Novogene. The naming for both subprojects would then be `PHRT/CLER21-1/` and `PHRT/CLER21-2/`. The naming of the subproject is derived from the first 4 letters of their surname/Nethzid (here from Melanie), the last two letters of the year and a rolling number. 
-
-
-
-
+The pipeline has been written to deal with short read Illumina sequencing data in the format or paired-end fastq files. All runs are processed together so that files/data that come from different batches/flowcells/flowlanes have to be run individually, e.g, as a different `(Sub)Project`.  
 
 ###  Format
 The pipeline has been written to deal with short read Illumina sequencing data in the format of gzipped paired-end fastq files.
 
 ###  Naming
 
-The file naming of raw input files can be arbitrary as long as we know what file belongs to which sample. The actual sample name on the other hand is more strict.
+The file naming of raw input files can be arbitrary as long as we know what file belongs to which sample. The actual sample name on the other hand is stricter.
 
-We have established a certain naming scheme that is used for all (meta)genomic sequencing data of the lab and we try to push the same naming scheme for the metabarcoding data. 
+We have established a certain naming scheme that is used for all (meta)genomic sequencing data of the lab, and we try to push the same naming scheme for the metabarcoding data. 
 
 Example:
 
@@ -39,7 +27,7 @@ Example:
 SUBPROJECT_SAMPLENAME_DATATYPE
 ```
 
-e.g for the samples mention above it could become:
+e.g. for the samples mention above it could become:
 
 ```
 CLER21-1_P019S5_METAB
@@ -70,7 +58,7 @@ The exception to this rule are the Tara datasets that follow a slightly differen
 
 Again, you can provide the files in any naming/structure you like. But we will need to map them to the following format:
 
-E.g raw fastq files will be mapped to the following structure:
+E.g. raw fastq files will be mapped to the following structure:
 
 ```
 CLER21-1/0raw/CLER21-1_P019S5_METAB/CLER21-1_P019S5_METAB_R1.fastq.gz
@@ -91,9 +79,9 @@ This paragraph is a summary of the individual steps executed in the pipeline.
 
 In the first step we:
 
-1. remove forward and reverse primers from the paired-end reads. 
-2. remove inserts where either forward or reverse primer is missing (or both)
-3. remove multiple copies of primers --> There are few cases in which primer sequence appears multiple times in a single sequence
+1. Remove forward and reverse primers from the paired-end reads. 
+2. Remove inserts where either forward or reverse primer is missing (or both).
+3. Remove multiple copies of primers --> There are few cases in which primer sequence appears multiple times in a single sequence.
 
 For most cases (excluding blanks) you should see that >90% of sequences survive this step.
 
@@ -102,8 +90,8 @@ For most cases (excluding blanks) you should see that >90% of sequences survive 
 
 In this step we:
 
-1. trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads
-2. perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (see below).   
+1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads.
+2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (see below).   
 
 ### Error learning - `dada2`
 
@@ -131,6 +119,9 @@ The final ASV table is generated alongside taxonomic annotation using IDtaxa2 wi
 ### Taxonomic annotation/OTU Table generation
 
 We produce, in addition to the ASV table, also an OTU table where ASVs are further clustered with `usearch` using a 97% cutoff. See below for the format.
+
+### Run USEARCH and DefCom
+Perform a global sequence alignment and save the results in `otus.lca`.
 
 
 ## How to run the pipeline:
@@ -175,7 +166,7 @@ $ conda activate metab-pipe
 
 ### Estimate parameters
 
-A few parameters need to be set in order to start the analysis
+A few parameters need to be set in order to start the analysis:
 
 #### Primer pairs
 
@@ -183,12 +174,12 @@ Creating amplicon sequencing data needs primers that are used to extract specifi
 
 #### Read length
 
-`dada2` tries to infer amplicon sequencing variants from quality controlled sequencing data. `dada2` would work best when there would be no errors in the sequencing data. Quality of bases usually drops the closer you are to the end of the sequence. `dada2`, therefor, suggest the following: Trim as many bases from the end of the read so that forward and reverse read can still merge. Also, trim more from the reverse read as the forward read generally have a higher quality. 
+`dada2` tries to infer amplicon sequencing variants from quality controlled sequencing data. `dada2` would work best when there would be no errors in the sequencing data. Quality of bases usually drops the closer you are to the end of the sequence. `dada2`, therefore, suggests the following: Trim as many bases from the end of the read so that forward and reverse read can still merge. Also, trim more from the reverse read as the forward read generally has a higher quality. 
 
 
 ####  Errors
 
-`dada2` can work with sequencing data that has errornous bases by correcting them in the learnErrors/inference step. However, some sequences may still be of too low quality and need to be removed. For that we apply the `maxee` parameter which estimates how many bases in a sequence are wrong when looking at all quality values. So a value of `maxee=1` would mean that one error in a 100 bp long read would be tolerated. `dada2` uses the value of `maxee=2` in its tutorial and we suggest to keep it this way. 
+`dada2` can work with sequencing data that has erroneous bases by correcting them in the learnErrors/inference step. However, some sequences may still be of too low quality and need to be removed. For that we apply the `maxee` parameter which estimates how many bases in a sequence are wrong when looking at all quality values. So a value of `maxee=1` would mean that one error in a 100 bp long read would be tolerated. `dada2` uses the value of `maxee=2` in its tutorial and we suggest to keep it this way. 
 
 ##### N
 
@@ -199,10 +190,10 @@ Creating amplicon sequencing data needs primers that are used to extract specifi
 
 The parameters needed to start the pipeline can be estimated with the `estimate_parameters.py` script. The script will take 5000 reads from each sample in your dataset and 
 
-- will detect the correct primer, 
-- will estimate the minimal length of R2 and R1 reads, 
-- will test how many sequences pass the quality control using different values for `maxee`
-- and will check whether there is an issue with `N` bases
+- Will detect the correct primer. 
+- Will estimate the minimal length of R2 and R1 reads.
+- Will test how many sequences pass the quality control using different values for `maxee`.
+- And will check whether there is an issue with `N` bases.
 
 
 The example below should the output for a test dataset. It looks like we use the 515/806 primers. The required read length of R1 is 161 (121 for R2) and there seems to be no issues with `N`. Using the default value `2` for the `maxee` parameter will keep ~95% of the sequences.   
@@ -213,9 +204,9 @@ The example below should the output for a test dataset. It looks like we use the
 
 ### Prepare config files
 
-1. `config.yaml`: The config file that contains parameters, locations of files and the rules that shouild be executed in the snakemake pipeline
+1. `config.yaml`: The config file that contains parameters, locations of files and the rules that should be executed in the snakemake pipeline
 2. `samples`: The samples file contains a list of all samples that should be included in the analysis
-3. `blacklist`: The blacklist file contains a list of all samples that should be excluded from the analysis
+3. `blocklist`: The blocklist file contains a list of all samples that should be excluded from the analysis
 
 Example `config.yaml` file:
 
@@ -223,9 +214,9 @@ Example `config.yaml` file:
 ###################
 ##USER PARAMETERS##
 ###################
-data_dir: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/processed/TEST_PROJECT/TEST22-2/'
+data_dir: '/path/to/your/data/'
 sample_file: 'samples'
-blacklist: 'blacklist'
+blocklist: 'blocklist'
 
 
 #######################
@@ -233,14 +224,15 @@ blacklist: 'blacklist'
 #######################
 
 
-FORWARD_PRIMER_NAME: '515f_caporaso'
+FORWARD_PRIMER_NAME: '515f_parada'
 REVERSE_PRIMER_NAME: '806r_caporaso'
 QC_MINLEN: '111'
 QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
-QC_TRUNCQ: 2
+QC_TRUNCQ: '2'
 LE_NBASES: '1e7'
+REFERENCE_SEQUENCE_FILE: 'path/to/your/reference'
 
 
 ################
@@ -248,7 +240,7 @@ LE_NBASES: '1e7'
 ################
 
 runCutadapt: True
-runQC: False
+runQC: True
 runLearnErrors: True
 runInference: True
 runMergeReads: True
@@ -256,16 +248,19 @@ runRemoveBimeras: True
 runReadStats: True
 runASVTax: True
 runOTUTax: True
+runUSEARCH: True
+runDefCom: True
+
 #######################
 ##END USER PARAMETERS##
 #######################
 
+#######################
+##STANDARD PARAMETERS##
+#######################
 
-
-# Standard parameters. Dont change these!!!
-
-silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
-primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
+silva_training: 'path/to/SILVA_SSU_r138_2019.RData'
+primers: 'path/to/primers'
 ```
 
 The `samples` file:
@@ -278,7 +273,7 @@ TEST22-2_neg_mini_SUSHI_METAB
 RANDOM_SAMPLE_TO_EXCLUDE
 ```
 
-The `blacklist` file: 
+The `blocklist` file: 
 
 ```bash
 RANDOM_SAMPLE_TO_EXCLUDE
@@ -286,29 +281,49 @@ RANDOM_SAMPLE_TO_EXCLUDE
 
 ### Running the pipeline
 
-Execute the jobs that you want to run with:
+First copy the templates for `map.py` and `config.yaml` to the folder where you run the analysis and create a `samples` and `blocklist` file. The pipeline is best run in a screen:
+```bash
+screen -S 16S_pipe
+```
+Next, edit the map file:
+- Change `source_folder` & `dest_folder` accordingly (remember to add `/0raw/` at the end of `dest_folder`) 
+- Change `r1_file` & `r2_file` to the file ending that matches the files.
+- Change `samplename` such that it creates a unique sample name that matches with the names given by the researcher.
+- Update `new_sample_name`.
+```bash
+vim map.py
+```
+Edit the config file:
+- Add `data_dir`.
+- Choose which steps you would like to run.
+- Adapt user parameters.
+```bash
+vim config.yaml
+```
+
+Here, we will run map.sh and check that everything ran correctly.
+```bash
+python map.py > map.sh
+./map.sh
+cd {dest_folder}
+ls -althr 0raw/*/*gz | rev | cut -f 1 -d " " | rev | sort | uniq -c | wc -l # check whether double the amount of samples
+```
+Next we will add samples that we don't want to analyze to the blocklist and run `estimate_parameters.py`. The last command will create an output as shown in the Parameters section. In case too much data was lost, adapt the parameters in the config file.
 
 ```bash
-snakemake -s /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/code/pipeline/dada2_snake.py  --configfile config.yaml -j 64 -k -p
+conda activate metab-pipe
+touch blocklist # put here name of samples that we don't want to analyze
+# vim blocklist # run this line in case you have samples you want to exclude from analysis
+ls /path/to/your/data/0raw/ | sort > samples
+python /path/to/the/16S_pipeline/code/pipeline/estimate_parameters.py config.yaml 16
 ```
-The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather then hours.
+When all the parameters are properly set, we will run the snakemake pipeline after loading the module USEARCH:
+```bash
+ml USEARCH
+snakemake -s /path/to/16S_pipeline/code/pipeline/dada2_snake.py --configfile /path/to/config.yaml -j 16 -k 
+```
+The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather than hours.
 
-## The output file
-### Where to find
-
-TODO
-### Format/How to load into R 
-
-TODO Guillem
-- load table
-- alpha/beta div by default
-## Additional:
-### Merging of tables
-
-TODO GUILLEM
-
-- Can only merge with same primer pairs
-- Parameters do not need to match 100%
 ## Limitations
 ### Mixed orientations 
 
@@ -317,4 +332,13 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 ### N
 
 Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However this is not covered in this pipeline.
- 
+
+## TODO
+- Table of Contents
+- Where to find the output file
+- Format/How to load into R
+	- load table
+	- alpha/beta div by default
+ - Merging of tables
+ 	- Can only merge with same primer pairs
+	- Parameters do not need to match 100%

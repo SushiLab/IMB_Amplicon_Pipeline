@@ -2,8 +2,10 @@ import sys
 import glob
 import collections
 data_dir = sys.argv[1]
-out_file = sys.argv[2]
-
+if len(sys.argv) > 2:
+    out_file = sys.argv[2]
+else:
+    out_file = False
 
 def parse_bbduk_stats(logfile):
     with open(logfile) as handle:
@@ -18,9 +20,13 @@ def parse_bbduk_stats(logfile):
 steps = set()
 sample_2_step_2_inserts = {}
 read_stats_files = glob.glob(data_dir + '/*/*/*readstats.log')
+offset = -2
+if len(read_stats_files) < 1:
+    read_stats_files = glob.glob(data_dir + '/*/*readstats.log')
+    offset = -1
 for read_stats_file in read_stats_files:
-    sample = read_stats_file.split('/')[-2]
-    step = read_stats_file.split('/')[-3]
+    sample = read_stats_file.split('/')[offset].split('.')[0]
+    step = read_stats_file.split('/')[offset-1]
     reads, bases = parse_bbduk_stats(read_stats_file)
     inserts = int(reads/2)
     steps.add(step)
@@ -78,13 +84,17 @@ steps = sorted(list(steps))
 
 
 tmp = '\t'.join(['sample'] + steps)
-print(tmp)
+
+if out_file:
+    sys.stdout = open(out_file, 'w')
+
+sys.stdout.write(f'{tmp}\n')
+
 for sample in sorted(sample_2_step_2_inserts.keys()):
     step_2_inserts = sample_2_step_2_inserts[sample]
     tmp = [sample]
     for step in steps:
         tmp.append(str(step_2_inserts[step]))
     tmp_str = '\t'.join(tmp)
-    print(tmp_str)
-
+    sys.stdout.write(f'{tmp_str}\n')
 

@@ -14,11 +14,12 @@ QC_MINLEN = config['QC_MINLEN']
 QC_TRUNC_R1 = config['QC_TRUNC_R1']
 QC_TRUNC_R2 = config['QC_TRUNC_R2']
 QC_MAXEE = config['QC_MAXEE']
-QC_TRUNCQ = config['QC_TRUNCQ']
 LE_NBASES = config['LE_NBASES']
-SCRIPTFOLDER = '../16S_pipeline/code/pipeline/'
+USEARCH_DB = config['USEARCH_DB']
+SCRIPTFOLDER = '/nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/1_pipelines/16S_pipeline/code/pipeline/'
 
 runCutadapt = config['runCutadapt']
+allowUntrimmed = config['allowUntrimmed']
 runQC = config['runQC']
 runLearnErrors = config['runLearnErrors']
 runInference = config['runInference']
@@ -27,7 +28,8 @@ runRemoveBimeras = config['runRemoveBimeras']
 runReadStats = config['runReadStats']
 runASVTax = config['runASVTax']
 runOTUTax = config['runOTUTax']
-#runUSEARCH = config['runUSEARCH']
+runUSEARCH = config['runUSEARCH']
+runDefCom = config['runDefCom']
 
 
 def getPrimers(primer_file):
@@ -43,10 +45,16 @@ def getPrimers(primer_file):
                 primers[splits[2]] = splits[1:]
         return primers
 
+FORWARD_PRIMER_SEQUENCE = config.get('FORWARD_PRIMER_SEQUENCE')
+if FORWARD_PRIMER_SEQUENCE is None:
+    FORWARD_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[FORWARD_PRIMER_NAME][0]
+REVERSE_PRIMER_SEQUENCE = config.get('REVERSE_PRIMER_SEQUENCE')
+if REVERSE_PRIMER_SEQUENCE is None:
+    REVERSE_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
 
-FORWARD_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[FORWARD_PRIMER_NAME][0]
-REVERSE_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
-
+REFERENCE_SEQUENCE_FILE = config.get('REFERENCE_SEQUENCE_FILE')
+if (REFERENCE_SEQUENCE_FILE == None) and runDefCom:
+    exit(1)
 
 RAWFOLDER_NAME = '0raw'
 CUTADAPTFOLDER_NAME = '1cutadapt'
@@ -56,7 +64,7 @@ DADAFOLDER_NAME = '4sampleInference'
 MERGEREADSFOLDER_NAME = '5mergeReads'
 BIMERAREMOVALFOLDER_NAME = '6bimeraRemoval'
 TAXONOMYFOLDER_NAME = '7taxonomy'
-#USEARCHFOLDER_NAME = "8uparsetax"
+USEARCHFOLDER_NAME = "8uparsetax"
 
 SAMPLES = []
 if SAMPLE_FILE.is_file():
@@ -80,6 +88,7 @@ TAXONOMY_FILES = []
 OTU_ASV_FILES = []
 STATS_FILES = []
 STATS_FILES_TOT = []
+DEFCOM_FILES = []
 for sample in SAMPLES:
     for raw_file in DATA_DIR.joinpath(RAWFOLDER_NAME).joinpath(sample).rglob('*.fastq.gz'):
         RAW_SEQFILES.append(raw_file)
@@ -233,15 +242,18 @@ OTU_ASV_FILES.append(otu_file)
 OTU_ASV_FILES.append(marker_file)
 
 
-"""# usearch
+# usearch
 USEARCH_FILES = DATA_DIR.joinpath(USEARCHFOLDER_NAME, 'uparse.done')
 USEARCH_DIR = DATA_DIR.joinpath(USEARCHFOLDER_NAME)
-"""
+
 
 # Final Insert stats
-
 insert_counts_file = DATA_DIR.joinpath(f'{PROJECT_NAME}.insert.counts')
 STATS_FILES_TOT.append(insert_counts_file)
+
+# defined community
+assignment_file = DATA_DIR.joinpath(f'{PROJECT_NAME}.refs.tsv')
+DEFCOM_FILES.append(assignment_file)
 
 if not runCutadapt:
     CUTADAPT_FILES = []
@@ -262,9 +274,11 @@ if not runASVTax:
     TAXONOMY_FILES = []
 if not runOTUTax:
     OTU_ASV_FILES = []
-"""if not runUSEARCH:
+if not runUSEARCH:
     UPARSE_PATH = []
-"""
+if not runDefCom:
+    DEFCOM_FILES = []
+
 
 rule all:
     input:
@@ -276,20 +290,21 @@ rule all:
         MERGEREADS_FILES,
         BIMERA_FILES,
         TAXONOMY_FILES,
-        OTU_ASV_FILES
-"""        STATS_FILES_TOT,
-        USEARCH_FILES
-"""
+        OTU_ASV_FILES,
+        STATS_FILES_TOT,
+        USEARCH_FILES,
+        DEFCOM_FILES
+
 
 rule insert_stats:
     input:
         stats_files = STATS_FILES,
         otu_asv_files = OTU_ASV_FILES,
     output:
-        '{path}/'+PROJECT_NAME+'.insert.counts'
+        stats = '{path}/'+PROJECT_NAME+'.insert.counts'
     shell:
         '''
-        python {SCRIPTFOLDER}create_insert_stats.py {wildcards.path} {output} > {output}
+        python {SCRIPTFOLDER}create_insert_stats.py {wildcards.path} {output.stats}
         '''
 
 
@@ -313,7 +328,8 @@ rule cutadapt:
     params:
         fwd_primer = FORWARD_PRIMER_SEQUENCE,
         rev_primer = REVERSE_PRIMER_SEQUENCE,
-        minlength = QC_MINLEN
+        minlength = QC_MINLEN,
+        allow_untrimmed = '--discard-untrimmed' if not allowUntrimmed else ''
     benchmark:
         '{path}/'+CUTADAPTFOLDER_NAME+'/{sample}/{sample}.cutadapt.benchmark'
     threads:
@@ -325,7 +341,7 @@ rule cutadapt:
     shell:
         '''
         command="
-        cutadapt -O 12 --discard-untrimmed -g {params.fwd_primer} -G {params.rev_primer} -o {output.r1tmp} -p {output.r2tmp} {input.r1} {input.r2} -j {threads} --pair-adapters --minimum-length 75 &> {log.log}
+        cutadapt -O 12 {params.allow_untrimmed} -g {params.fwd_primer} -G {params.rev_primer} -o {output.r1tmp} -p {output.r2tmp} {input.r1} {input.r2} -j {threads} --pair-adapters --minimum-length 75 &> {log.log}
         cutadapt -O 12 --times 5 -g {params.fwd_primer} -o {output.r1tmp2} -j {threads} {output.r1tmp} &>> {log.log}
         cutadapt -O 12 --times 5 -g {params.rev_primer} -o {output.r2tmp2} -j {threads} {output.r2tmp} &>> {log.log}
         cutadapt -o {output.r1} -p {output.r2} {output.r1tmp2} {output.r2tmp2} -j {threads} --minimum-length {params.minlength} &>> {log.log} 
@@ -407,10 +423,9 @@ rule r1r2_sample_files:
     input:
         FILTERANDTRIM_FILES
     output:
-        r1_samples = '{path}/'+FILTERANDTRIMFOLDER_NAME+'/r1.samples',
-        r2_samples = '{path}/'+FILTERANDTRIMFOLDER_NAME+'/r2.samples',
-        marker = touch('{path}/'+FILTERANDTRIMFOLDER_NAME +
-                       '/r1r2.samples.done'),
+        r1_samples = '{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1.samples',
+        r2_samples = '{path}/' + FILTERANDTRIMFOLDER_NAME + '/r2.samples',
+        marker = touch('{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1r2.samples.done'),
     params:
         samples_2_use = getSAMPLES,
         project_folder = DATA_DIR
@@ -452,11 +467,13 @@ rule dada2_inference:
         marker_samples = '{path}/' + \
             FILTERANDTRIMFOLDER_NAME+'/r1r2.samples.done',
         marker = '{path}/'+LEARNERRORFOLDER_NAME+'/R{ori}.learnerrors.done',
-        errors = '{path}/'+LEARNERRORFOLDER_NAME + '/R{ori}.learnerrors.rds'
+        errors = '{path}/'+LEARNERRORFOLDER_NAME + '/R{ori}.learnerrors.rds',
     output:
         tab = '{path}/'+DADAFOLDER_NAME + '/R{ori}.seqtab.rds',
         dd = '{path}/'+DADAFOLDER_NAME + '/R{ori}.dd.rds',
         marker = touch('{path}/'+DADAFOLDER_NAME + '/R{ori}.dada.done')
+    params:
+        ref = REFERENCE_SEQUENCE_FILE
     threads:
         32
     log:
@@ -467,7 +484,7 @@ rule dada2_inference:
     shell:
         '''
         command="
-        Rscript {SCRIPTFOLDER}dada2_inference.R {input.samples} {input.errors} {output.tab} {output.dd} {threads} &> {log.log}
+        Rscript {SCRIPTFOLDER}dada2_inference.R {input.samples} {input.errors} {output.tab} {output.dd} {threads} {params.ref} &> {log.log}
         ";
         echo "$command" > {log.command};
         eval "$command"
@@ -614,32 +631,32 @@ rule seqtab_stats:
         '''
 
 
-#rule ref_assignment:
-#    input:
-#        asvtab = '{path}/'+PROJECT_NAME+'.asvs.tsv',
-#        asvs_fasta = '{path}/'+PROJECT_NAME+'.asvs.fasta'
-#    output:
-#        asvs_ref = '{path}/'+PROJECT_NAME+'.refs.tsv',
-#        marker = touch('{path}/'+PROJECT_NAME+'.refs.done')
-#    params:
-#        ref_fasta = REFERENCE_SEQUENCE_FILE,
-#    log:
-#        log = '{path}/'+PROJECT_NAME+'.refassign.log',
-#    threads:
-#        32
-#    shell:
-#        '''
-#        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} &> {log.log}
-#        '''
+rule ref_assignment:
+    input:
+        asvtab = '{path}/'+PROJECT_NAME+'.asvs.tsv',
+        asvs_fasta = '{path}/'+PROJECT_NAME+'.asvs.fasta'
+    output:
+        asvs_ref = '{path}/'+PROJECT_NAME+'.refs.tsv',
+        marker = touch('{path}/'+PROJECT_NAME+'.refs.done')
+    params:
+        ref_fasta = REFERENCE_SEQUENCE_FILE,
+    log:
+        log = '{path}/'+PROJECT_NAME+'.refassign.log',
+    threads:
+        32
+    shell:
+        '''
+        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} &> {log.log}
+        '''
 
-#rule uparse:
-#    input:
-#        input_d = DATA_DIR
-#    output:
-#        done_file = USEARCH_FILES,
-#        output_d = USEARCH_DIR
-#    shell:
-#        """
-#        uparse.sh -i {input.input_d} -o {output.done_file} -d {output.output_d}
-#        """
-
+rule uparse:
+    input:
+        input_f = str(DATA_DIR / PROJECT_NAME) + '.otus.fasta',
+        database = USEARCH_DB
+    output:
+        done_file = touch(USEARCH_FILES),
+        output_d = directory(USEARCH_DIR)
+    shell:
+        '''
+        {SCRIPTFOLDER}uparse.sh -f {input.input_f} -o {output.output_d} -d {output.done_file} -b {input.database}
+        '''

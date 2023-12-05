@@ -1,4 +1,4 @@
-ting USEARCH is accessible...")
+cat("Testing USEARCH is accessible...")
 usearch_test <- try(expr = system(command = "usearch",intern = T),silent = T)
 if(class(usearch_test) == "try-error"){
       stop("USEARCH executable is not found. It should be loaded and be executable with the exact command `'usearch'. You can add aliases to your '.bashrc' file.", call.=FALSE)

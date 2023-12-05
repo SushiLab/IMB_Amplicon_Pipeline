@@ -15,12 +15,14 @@ blocklist: 'blocklist'
 
 FORWARD_PRIMER_NAME: '515f_parada'
 REVERSE_PRIMER_NAME: '806r_caporaso'
+FORWARD_PRIMER_SEQUENCE: # can be left empty if you have a primers file that contains the correct primer names
+REVERSE_PRIMER_SEQUENCE: # can be left empty if you have a primers file that contains the correct primer names
 QC_MINLEN: '111'
 QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
-QC_TRUNCQ: '2'
 LE_NBASES: '1e7'
+REFERENCE_SEQUENCE_FILE: '/nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/2_data_analysis/fungus/plasmid/pgg002-neb-tool.fasta'
 
 
 ################
@@ -28,6 +30,7 @@ LE_NBASES: '1e7'
 ################
 
 runCutadapt: True
+allowUntrimmed: True
 runQC: True
 runLearnErrors: True
 runInference: True
@@ -37,6 +40,7 @@ runReadStats: True
 runASVTax: True
 runOTUTax: True
 runUSEARCH: True
+runDefCom: True
 
 #######################
 ##END USER PARAMETERS##
