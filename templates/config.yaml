@@ -1,16 +1,17 @@
 
 
-###################
-##USER PARAMETERS##
-###################
+##############################
+## FILE LOCATIONS AND NAMES ##
+##############################
 data_dir: '/path/to/your/data/'
 sample_file: 'samples'
 blocklist: 'blocklist'
+REFERENCE_SEQUENCE_FILE: 'path/to/your/reference'
 
 
-#######################
-### USER PARAMETERS ###
-#######################
+#####################
+## USER PARAMETERS ##
+#####################
 
 
 FORWARD_PRIMER_NAME: '515f_parada'
@@ -22,12 +23,11 @@ QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
 LE_NBASES: '1e7'
-REFERENCE_SEQUENCE_FILE: '/nfs/cds-peta/exports/biol_micro_cds_gr_sunagawa/scratch/lifeer/2_data_analysis/fungus/plasmid/pgg002-neb-tool.fasta'
 
 
-################
-##STEPS TO RUN##
-################
+##################
+## STEPS TO RUN ##
+##################
 
 runCutadapt: True
 allowUntrimmed: True
@@ -42,13 +42,13 @@ runOTUTax: True
 runUSEARCH: True
 runDefCom: True
 
-#######################
-##END USER PARAMETERS##
-#######################
+#########################
+## END USER PARAMETERS ##
+#########################
 
 
 
-# Standard parameters. Dont change these!!!
+# Standard parameters for the Sunagawa lab.
 
 silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
 primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'

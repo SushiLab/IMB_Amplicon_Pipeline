@@ -7,10 +7,14 @@ import gzip
 import collections
 import subprocess
 import re
+
 config_file = sys.argv[1]
 threads = int(sys.argv[2])
+SCRIPTFOLDER = workflow.basedir + "/"
+
+
 def getPairsWritten(file):
-    forward = file.split('/')[-1].replace('cutadapt_', '').replace('.log', '').split('---')[0] #cutadapt_515r_parada___v4---926r___v5.log
+    forward = file.split('/')[-1].replace('cutadapt_', '').replace('.log', '').split('---')[0]  # cutadapt_515r_parada___v4---926r___v5.log
     reverse = file.split('/')[-1].replace('cutadapt_', '').replace('.log', '').split('---')[1]
     forward_name = forward.split('___')[0]
     forward_region = forward.split('___')[1]
@@ -22,6 +26,7 @@ def getPairsWritten(file):
             if 'Pairs written (passing filters):' in line:
                 return int(line.split()[-2].replace(',', ''))
 
+
 def getSequences(count, file):
     data = []
     with gzip.open(file, 'rt') as handle:
@@ -32,20 +37,19 @@ def getSequences(count, file):
                 break
     return data
 
- 
+
 yaml_data = {}
 with open(config_file) as handle:
     yaml_data = yaml.safe_load(handle)
-  
 
 data_dir = yaml_data['data_dir']
 samples = yaml_data['sample_file']
 blocklist = yaml_data['blocklist']
 primer_file = yaml_data['primers']
 
-
 if yaml_data.get('FORWARD_PRIMER_SEQUENCE') is not None:
-    primer_pairs = [([yaml_data['FORWARD_PRIMER_SEQUENCE'], yaml_data['FORWARD_PRIMER_NAME'], 'vn'], [yaml_data['REVERSE_PRIMER_SEQUENCE'], yaml_data['REVERSE_PRIMER_NAME'], 'vn'])]
+    primer_pairs = [([yaml_data['FORWARD_PRIMER_SEQUENCE'], yaml_data['FORWARD_PRIMER_NAME'], 'vn'],
+                     [yaml_data['REVERSE_PRIMER_SEQUENCE'], yaml_data['REVERSE_PRIMER_NAME'], 'vn'])]
 else:
     with open(primer_file) as handle:
         primers = {}
@@ -58,6 +62,7 @@ else:
                 primer_pairs.append((forward_primer, reverse_primer))
             else:
                 primers[splits[2]] = splits[1:]
+
 
 def whereAreTheNs(file, required_read_length):
     positions = collections.Counter()
@@ -72,12 +77,14 @@ def whereAreTheNs(file, required_read_length):
     total_N = sum(list(positions.values()))
     return total_N, sequences_with_N, positions
 
+
 def getReadlength(file):
     reads = []
     with open(file) as handle:
         for cnt, (header, sequence, qual) in enumerate(QualityIO.FastqGeneralIterator(handle), 1):
             reads.append(len(sequence))
     return reads
+
 
 def detreads_and_bases(f1, f2):
     r1_reads = []
@@ -93,6 +100,7 @@ def detreads_and_bases(f1, f2):
     bases = sum(r1_reads) + sum(r2_reads)
     return reads, inserts, bases
 
+
 SAMPLENAMES = set()
 BLOCKLISTNAMES = set()
 with open(blocklist) as handle:
@@ -104,7 +112,6 @@ with open(samples) as handle:
         samplename = line.strip()
         if samplename not in BLOCKLISTNAMES:
             SAMPLENAMES.add(samplename)
-            
 
 temp_folder = data_dir + '/temp_folder/'
 
@@ -130,12 +137,13 @@ if True:
 
     dest_r1_file.close()
     dest_r2_file.close()
-print('FORWARD_PRIMER\tFORWARD_PRIMER_NAME\tREVERSE_PRIMER\tREVERSE_PRIMER_NAME\tRAW_INSERTS\tAVERAGE_READ_LENGTH_R1\tAVERAGE_READ_LENGTH_R2\tCUTADAPT_INSERTS\tPRIMER_HITS\tR1_READS_W_N\tR2_READS_W_N\tPARAM=TRUNCLENR1\tPARAM=TRUNCLENR2\tPARAM=QCMINLEN\tPARAM=MAXEE\tQC_INSERTS\tPERC_INSERTS\tPLANNED_OVERLAP\tESTIMATED_INSERT_SIZE')
+print(
+    'FORWARD_PRIMER\tFORWARD_PRIMER_NAME\tREVERSE_PRIMER\tREVERSE_PRIMER_NAME\tRAW_INSERTS\tAVERAGE_READ_LENGTH_R1\tAVERAGE_READ_LENGTH_R2\tCUTADAPT_INSERTS\tPRIMER_HITS\tR1_READS_W_N\tR2_READS_W_N\tPARAM=TRUNCLENR1\tPARAM=TRUNCLENR2\tPARAM=QCMINLEN\tPARAM=MAXEE\tQC_INSERTS\tPERC_INSERTS\tPLANNED_OVERLAP\tESTIMATED_INSERT_SIZE')
 raw_reads, raw_inserts, raw_bases = detreads_and_bases(raw_r1_file, raw_r2_file)
 raw_readlength_r1 = getReadlength(raw_r1_file)
 raw_readlength_r2 = getReadlength(raw_r2_file)
-raw_readlength_r1_avg = int(sum(raw_readlength_r1)/len(raw_readlength_r1))
-raw_readlength_r2_avg = int(sum(raw_readlength_r2)/len(raw_readlength_r2))
+raw_readlength_r1_avg = int(sum(raw_readlength_r1) / len(raw_readlength_r1))
+raw_readlength_r2_avg = int(sum(raw_readlength_r2) / len(raw_readlength_r2))
 if True:
     for forward_primer, reverse_primer in primer_pairs:
         cutadapt_r1_file = temp_folder + f'cutadapt_{forward_primer[1]}___{forward_primer[2]}---{reverse_primer[1]}___{reverse_primer[2]}_R1.fastq'
@@ -147,23 +155,24 @@ if True:
         if True:
             subprocess.check_call(cutadapt_command_stub, shell=True)
         pairs_written = getPairsWritten(cutadapt_log_file)
-        perc_kept = int(100.0 * pairs_written/total_reads)
+        perc_kept = int(100.0 * pairs_written / total_reads)
         cutadapt_reads, cutadapt_inserts, cutadapt_bases = detreads_and_bases(cutadapt_r1_file, cutadapt_r2_file)
         if perc_kept < 10.0:
-            print(f'{forward_primer[0]}\t{forward_primer[1]}\t{reverse_primer[0]}\t{reverse_primer[1]}\t{raw_inserts}\t{raw_readlength_r1_avg}\t{raw_readlength_r2_avg}\t{cutadapt_inserts}\t{perc_kept}\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA')            
-            #print(f'------------------Discarding primer pair {forward_primer} {reverse_primer}. <10% ({perc_kept}%) reads made it through cutadapt')
+            print(
+                f'{forward_primer[0]}\t{forward_primer[1]}\t{reverse_primer[0]}\t{reverse_primer[1]}\t{raw_inserts}\t{raw_readlength_r1_avg}\t{raw_readlength_r2_avg}\t{cutadapt_inserts}\t{perc_kept}\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA')
+            # print(f'------------------Discarding primer pair {forward_primer} {reverse_primer}. <10% ({perc_kept}%) reads made it through cutadapt')
             continue
         else:
-            #print(f'Keeping primer pair {forward_primer} {reverse_primer}. >10% ({perc_kept}%) reads made it through cutadapt')
+            # print(f'Keeping primer pair {forward_primer} {reverse_primer}. >10% ({perc_kept}%) reads made it through cutadapt')
             readlength_r1 = getReadlength(cutadapt_r1_file)
             readlength_r2 = getReadlength(cutadapt_r2_file)
-            readlength_r1_avg = int(sum(readlength_r1)/len(readlength_r1))
-            readlength_r2_avg = int(sum(readlength_r2)/len(readlength_r2))
+            readlength_r1_avg = int(sum(readlength_r1) / len(readlength_r1))
+            readlength_r2_avg = int(sum(readlength_r2) / len(readlength_r2))
             estimated_insert_size = abs(
                 int(re.findall(r'\d+', reverse_primer[1])[0]) - int(re.findall(r'\d+', forward_primer[1])[0])) - len(
                 forward_primer[0]) - len(reverse_primer[0]) + 1
             planned_overlap = 45
-            required_read_length = int((2 * planned_overlap + estimated_insert_size)/2) 
+            required_read_length = int((2 * planned_overlap + estimated_insert_size) / 2)
             r1_required_read_length = required_read_length + 20
             r2_required_read_length = required_read_length - 20
             qcminlength = r2_required_read_length - 10
@@ -173,15 +182,15 @@ if True:
             for maxee in maxees:
                 r1_out_file = cutadapt_r1_file.replace('_R1.fastq', '_maxee-' + str(maxee) + '_R1.fastq')
                 r2_out_file = cutadapt_r1_file.replace('_R1.fastq', '_maxee-' + str(maxee) + '_R2.fastq')
-                command = f'Rscript /nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/code/pipeline/dada2_filterandtrim.R {cutadapt_r1_file} {cutadapt_r2_file} {r1_out_file} {r2_out_file} {maxee} 2 0 FALSE {qcminlength} {r1_required_read_length} {r2_required_read_length} {threads} &> {r1_out_file}.log'
-                    
+                command = f'Rscript {SCRIPTFOLDER}dada2_filterandtrim.R {cutadapt_r1_file} {cutadapt_r2_file} {r1_out_file} {r2_out_file} {maxee} 2 0 FALSE {qcminlength} {r1_required_read_length} {r2_required_read_length} {threads} &> {r1_out_file}.log'
+
                 if True:
                     subprocess.check_call(command, shell=True)
                     pathlib.Path(r1_out_file).touch(exist_ok=True)
                     pathlib.Path(r2_out_file).touch(exist_ok=True)
                 reads, inserts, bases = detreads_and_bases(r1_out_file, r2_out_file)
-                perc_qc_inserts = int(100.0 * inserts/cutadapt_inserts)
-                print(f'{forward_primer[0]}\t{forward_primer[1]}\t{reverse_primer[0]}\t{reverse_primer[1]}\t{raw_inserts}\t{raw_readlength_r1_avg}\t{raw_readlength_r2_avg}\t{cutadapt_inserts}\t{perc_kept}\t{r1_sequences_with_N}\t{r2_sequences_with_N}\t{r1_required_read_length}\t{r2_required_read_length}\t{qcminlength}\t{maxee}\t{inserts}\t{perc_qc_inserts}\t{planned_overlap}\t{estimated_insert_size}')
+                perc_qc_inserts = int(100.0 * inserts / cutadapt_inserts)
+                print(
+                    f'{forward_primer[0]}\t{forward_primer[1]}\t{reverse_primer[0]}\t{reverse_primer[1]}\t{raw_inserts}\t{raw_readlength_r1_avg}\t{raw_readlength_r2_avg}\t{cutadapt_inserts}\t{perc_kept}\t{r1_sequences_with_N}\t{r2_sequences_with_N}\t{r1_required_read_length}\t{r2_required_read_length}\t{qcminlength}\t{maxee}\t{inserts}\t{perc_qc_inserts}\t{planned_overlap}\t{estimated_insert_size}')
 
-                #print(maxee, reads, estimated_insert_size,  bases, cutadapt_reads, cutadapt_bases)
-
+                # print(maxee, reads, estimated_insert_size,  bases, cutadapt_reads, cutadapt_bases)

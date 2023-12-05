@@ -11,7 +11,7 @@ filt_r1 <- args[5]
 filt_r2 <- args[6]
 outfile <- args[7]
 
-
+# plotQualityProfile plots a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
 topr1 <- plotQualityProfile(raw_r1) + labs(title="R1 - RAW")
 topr2 <- plotQualityProfile(raw_r2) + labs(title="R2 - RAW")
 

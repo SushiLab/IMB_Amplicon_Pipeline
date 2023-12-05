@@ -1,3 +1,4 @@
+# Check whether USEARCH is installed
 cat("Testing USEARCH is accessible...")
 usearch_test <- try(expr = system(command = "usearch",intern = T),silent = T)
 if(class(usearch_test) == "try-error"){
@@ -5,10 +6,8 @@ if(class(usearch_test) == "try-error"){
 }
 cat("DONE\n")
 
+# Read in arguments
 args = commandArgs(trailingOnly=TRUE)
-
-#args <- c("scratch/BM10_library/BM10_library.asvs.tsv", "scratch/BM10_library/BM10_library.asvs.fasta", "lib/atlsphere_16s_trimmed.fasta", 4, "scratch/BM10_library/BM10_library.refs.tsv")
-
 asvtab_path <- args[1]
 asvs_fasta <- args[2]
 refs_fasta <- args[3]

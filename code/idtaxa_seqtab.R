@@ -10,7 +10,7 @@ option_list = list(
   make_option(c("-o", "--out_path"), type="character", default=NULL,help="Path to the output file (table with taxonomy as a tab-delimitted file)", metavar="character")
 ); 
 
-description<-paste("The program loads an RDS file containing a sequence table and assigns the taxonomy of ASVs/OTUs using IDTAXA\n\n")
+description <- paste("The program loads an RDS file containing a sequence table and assigns the taxonomy of ASVs/OTUs using IDTAXA\n\n")
 
 
 opt_parser = OptionParser(option_list=option_list,description = description);
