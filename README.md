@@ -1,7 +1,7 @@
 # 16S pipeline from the Sunagawa Lab
 ### Important updates
 - "blacklist" is now called "blocklist"
-- The new added UPARSE function can take a few hours to run depending on data size. Credit to [@cmfield] for the code.
+- The new added UPARSE function can take a few hours to run depending on data size. Credit to [@cmfield](https://github.com/cmfield) for the code.
 - We added new options to the config file: 
   - Forward and reverse primer sequences, in case you don't have a primers file
   - Reference sequence file for the usearch rule

@@ -17,21 +17,21 @@ def create_file_with_samples_and_file_paths(out_file, orientation, data_director
     sample_2_file = {}
     offset = -2
 
-    # find filtered and trimmed files
+    # Find filtered and trimmed files
     files = glob.glob(data_directory + '/2filterAndTrim/' + '*/*' + orientation)
     if len(files) < 1:
         files = glob.glob(data_directory + '/2filterAndTrim/' + '*' + orientation)
         offset = -1
 
-    # get needed information (sample name and file path)
+    # Get needed information (sample name and file path)
     for trimmed_file in files:
         sample = trimmed_file.split('/')[offset]
         sample_2_file[sample] = trimmed_file
 
-    # write output files
+    # Write output files
     for sample in sorted(sample_2_file.keys()):
         of.write(f'{sample}\t{sample_2_file[sample]}\n')
-        
+
     of.close()
 
 

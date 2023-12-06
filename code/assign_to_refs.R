@@ -15,18 +15,17 @@ alntab_path <- sub(".fasta", ".aln", asvs_fasta)
 maxe <- as.numeric(args[4])
 output_path <- args[5]
 
-asvtab <- read.table(asvtab_path, sep="\t", header=T)
-alntab <- read.table(alntab_path, sep="\t")
-alntab <- alntab[alntab[,5] <= maxe,]
-
-
 # USEARCH Alignment
 cat("Running USEARCH algorithm...")
 cmd <- system(command = paste("usearch -usearch_global", asvs_fasta, "-db",  refs_fasta, "-strand plus -blast6out", alntab_path, "-id 0.0 -maxaccepts 0 -threads 32"))
 cat("DONE\n")
 
-# determine best alignments for each ASV based on alignment scores
-# handle ambiguous and unassigned ASVS
+asvtab <- read.table(asvtab_path, sep="\t", header=T)
+alntab <- read.table(alntab_path, sep="\t")
+alntab <- alntab[alntab[,5] <= maxe,]
+
+# Determine best alignments for each ASV based on alignment scores
+# Handle ambiguous and unassigned ASVS
 assign <- function(alntab){
     #' The assign() function identifies the best-matching assigment for query sequences
     #' based on alignment scores provided in the alignment table (alntab).
@@ -69,7 +68,7 @@ found_refs <- unique(asvtab$assignment[!is.na(asvtab$assignment)])
 found_refs <- found_refs[found_refs != "ambiguous"]
 asvtab$assignment[is.na(asvtab$assignment)] <- "none"
 
-# collapse identical assignments and create the final assignment table
+# Collapse identical assignments and create the final assignment table
 crows <- lapply(found_refs, function(x) colSums(asvtab[asvtab$assignment == x, 7:ncol(asvtab)]))
 reftab <- do.call(rbind, crows)
 rownames(reftab) <- found_refs

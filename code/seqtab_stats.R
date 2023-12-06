@@ -1,3 +1,4 @@
+# Read in arguments
 args = commandArgs(trailingOnly=TRUE)
 input.rds <- args[1]
 output.stats <- args[2]

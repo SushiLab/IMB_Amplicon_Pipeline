@@ -1,8 +1,9 @@
 library(ggplot2)
 library(patchwork)
 library(dada2)
-args = commandArgs(trailingOnly=TRUE)
 
+# Read in arguments
+args = commandArgs(trailingOnly=TRUE)
 raw_r1 <- args[1]
 raw_r2 <- args[2]
 cutadapt_r1 <- args[3]
@@ -21,8 +22,7 @@ midr2 <- plotQualityProfile(cutadapt_r2) + labs(title="R2 - CUTADAPT")
 botr1 <- plotQualityProfile(filt_r1) + labs(title="R1 - QC FILTERED")
 botr2 <- plotQualityProfile(filt_r2) + labs(title="R2 - QC FILTERED")
 
-
-
+# Plot and save
 plot <- (topr1 | topr2) /
   (midr1 | midr2) /
   (botr1 | botr2)

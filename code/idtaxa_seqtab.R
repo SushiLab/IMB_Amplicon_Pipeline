@@ -31,11 +31,11 @@ description <-
     "The program loads an RDS file containing a sequence table and assigns the taxonomy of ASVs/OTUs using IDTAXA\n\n"
   )
 
-# define parser
+# Define parser
 opt_parser = OptionParser(option_list = option_list, description = description)
 opt = parse_args(opt_parser)
 
-# check that -i and -o are provided
+# Check that -i and -o are provided
 if (is.null(opt$path_to_seqtab) | is.null(opt$out_path)) {
   print_help(opt_parser)
   stop("At least one argument must be supplied for -i and -o", call. = FALSE)
@@ -47,7 +47,7 @@ library(data.table)
 library(tidyverse)
 cat("DONE\n")
 
-# read in arguments
+# Read in arguments
 path_to_seqtab <- opt$path_to_seqtab
 path_to_training_set <- opt$path_to_training_set
 threads <- opt$threads

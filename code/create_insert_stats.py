@@ -3,7 +3,7 @@ import glob
 import csv
 import collections
 
-# parse arguments
+# Parse arguments
 data_dir = sys.argv[1]
 if len(sys.argv) > 2:
     out_file = sys.argv[2]
@@ -47,7 +47,7 @@ def parse_bbduk_stats(logfile):
         return 0, 0
 
 
-def readStats(file_path):
+def read_stats(file_path):
     """
     Read Sample Insert Statistics
 
@@ -64,9 +64,13 @@ def readStats(file_path):
     return sample_2_inserts
 
 
-def readabfile(file_path, samples):
+def count_inserts(file_path, samples):
     """
-    Read A/B File and Extract Sample Insert Counts
+    Read csv File and Extract Sample Insert Counts
+
+    Reads a tab-delimited CSV file, extracts insert counts for specified samples, and aggregates these counts into a
+    Counter object, which is then returned. It assumes the sample names provided in the samples list are column headers
+    in the CSV file, and it sums up the insert counts for each sample across all rows in the file.
 
     Parameters:
     - file_path (str): Path to the file containing sample insert data.
@@ -98,7 +102,7 @@ for read_stats_file in read_stats_files:
 
 for (step, f) in files:
     steps.add(step)
-    sample_2_inserts = readStats(data_dir + '/' + f)
+    sample_2_inserts = read_stats(data_dir + '/' + f)
     for sample, inserts in sample_2_inserts.items():
         sample_2_step_2_inserts[sample][step] = inserts
 
@@ -106,9 +110,9 @@ steps.add('8otu_counts')
 steps.add('8asv_counts')
 
 # Reading data from files (otu_file and asv_file) and updating inserts information
-for sample, inserts in readabfile(otu_file, list(sample_2_step_2_inserts.keys())).items():
+for sample, inserts in count_inserts(otu_file, list(sample_2_step_2_inserts.keys())).items():
     sample_2_step_2_inserts[sample]['8otu_counts'] = inserts
-for sample, inserts in readabfile(asv_file, list(sample_2_step_2_inserts.keys())).items():
+for sample, inserts in count_inserts(asv_file, list(sample_2_step_2_inserts.keys())).items():
     sample_2_step_2_inserts[sample]['8asv_counts'] = inserts
 
 # Sorting steps and converting them to a list

@@ -1,7 +1,7 @@
 library(dada2)
 packageVersion("dada2")
 
-# read in arguments
+# Read in arguments
 args = commandArgs(trailingOnly=TRUE)
 wbim.file <- args[1]
 nobim.file <- args[2]

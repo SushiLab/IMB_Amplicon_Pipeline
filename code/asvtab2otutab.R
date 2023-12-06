@@ -15,24 +15,24 @@ option_list = list(
             metavar = "character"),
   make_option(c("-x", "--out_path_otu_fasta"), type = "character", default = "otus.fasta", help = "Path to the OTU fasta file",
             metavar = "character")
-); 
+);
 
 description <- paste("The program loads an ASV table and uses the UPARSE algorithm to cluster ASVs into OTUs and produce an OTU table.\n\n",
                    "The ASV table (specified in -i) needs to be a tab-delimited file with ASVs as rows and samples as columns. It also needs to have a mandatory column named as 'seq' containing the ASV sequence. All numeric variables should correspond to and only to the abundances in each sample. Any other non-numeric variable is allowed and will be recycled into the OTU table.\n",
                    "From the ASV sequence a FASTA file (specified in -f) is produced and subsequently used to run the UPARSE algorithm. A new ASV table including the UPARSE information is saved (specified in -a). An OTU table is produced and saved (specified in -o). For each OTU, information  from the representative ASV is kept. ASVs labelled as chimeric sequences by UPARSE are kept in the new ASV table but excluded in the OTU table.\n",
                    "USEARCH needs to be accessible and be executable with the exact command 'usearch'.\n")
 
-# define parser
+# Define parser
 opt_parser = OptionParser(option_list = option_list,description = description);
 opt = parse_args(opt_parser);
 
-# check that -i and -o are provided
+# Check that -i and -o are provided
 if (is.null(opt$path_to_table)){
   print_help(opt_parser)
   stop("At least one argument must be supplied for -i", call. = FALSE)
 }
 
-# check if USEARCH is accessible
+# Check if USEARCH is accessible
 cat("Testing USEARCH is accessible...")
 usearch_test <- try(expr = system(command = "usearch",intern = T),silent = T)
 if(class(usearch_test) == "try-error"){
@@ -46,7 +46,7 @@ library(tidyverse)
 library(Biostrings)
 cat("DONE\n")
 
-# read in arguments
+# Read in arguments
 path_to_table <- opt$path_to_table
 out_path_fasta <- opt$out_path_fasta
 out_path_asv <- opt$out_path_asv
@@ -128,7 +128,7 @@ tmp <- asvtab %>%
 otutab <- otutab %>%
   left_join(tmp, by = "otu") %>%
   select(colnames(tmp), everything())
-            
+
 fwrite(otutab, file = out_path_otu, sep = "\t")
 cat("DONE\n")
 cat("FINISHED\n")

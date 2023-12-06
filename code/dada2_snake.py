@@ -32,7 +32,17 @@ runUSEARCH = config['runUSEARCH']
 runDefCom = config['runDefCom']
 
 
-def getPrimers(primer_file):
+def get_primers(primer_file):
+    """
+    Reads a primer file and extracts primer sequences to create a dictionary of primer pairs.
+
+    Args:
+    - primer_file (str): The path to the file containing primer information.
+
+    Returns:
+    - primers (dict): A dictionary containing primer pairs. Keys are primer IDs, and values are lists of primer sequences.
+                      The format is {primer_id: [forward_primer_sequence, reverse_primer_sequence]}.
+    """
     primers = {}
     with open(primer_file) as handle:
         for line in handle:
@@ -48,10 +58,10 @@ def getPrimers(primer_file):
 # Get primer sequences
 FORWARD_PRIMER_SEQUENCE = config.get('FORWARD_PRIMER_SEQUENCE')
 if FORWARD_PRIMER_SEQUENCE is None:
-    FORWARD_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[FORWARD_PRIMER_NAME][0]
+    FORWARD_PRIMER_SEQUENCE = get_primers(PRIMERS_FILE)[FORWARD_PRIMER_NAME][0]
 REVERSE_PRIMER_SEQUENCE = config.get('REVERSE_PRIMER_SEQUENCE')
 if REVERSE_PRIMER_SEQUENCE is None:
-    REVERSE_PRIMER_SEQUENCE = getPrimers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
+    REVERSE_PRIMER_SEQUENCE = get_primers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
 
 # Get reference sequence file and exit if none is provided and runDefCom should be run
 REFERENCE_SEQUENCE_FILE = config.get('REFERENCE_SEQUENCE_FILE')
@@ -152,7 +162,7 @@ LEARNERROR_FILES.append(r1_samples_file)
 LEARNERROR_FILES.append(r2_samples_file)
 LEARNERROR_FILES.append(r1r2_marker_file)
 
-# learn errors
+# Learn errors
 r1_learnerrors_file = DATA_DIR.joinpath(
     LEARNERRORFOLDER_NAME,'R1.learnerrors.rds')
 r1_learnerrors_marker = DATA_DIR.joinpath(
@@ -166,7 +176,7 @@ LEARNERROR_FILES.append(r1_learnerrors_marker)
 LEARNERROR_FILES.append(r2_learnerrors_file)
 LEARNERROR_FILES.append(r2_learnerrors_marker)
 
-# inference
+# Inference
 r1_dada_seqtab_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.seqtab.rds')
 r1_dada_dd_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.dd.rds')
 r1_dada_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.dada.done')
@@ -189,7 +199,7 @@ STATS_FILES.append(r1_seqtab_stats_marker)
 STATS_FILES.append(r2_seqtab_stats)
 STATS_FILES.append(r2_seqtab_stats_marker)
 
-# merge
+# Merge
 merge_reads_seqtab = DATA_DIR.joinpath(
     MERGEREADSFOLDER_NAME,'seqtab.mergereads.rds')
 merge_reads_dd = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'dd.mergereads.rds')
@@ -204,7 +214,7 @@ merge_reads_seqtab_stats_marker = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'seqta
 STATS_FILES.append(merge_reads_seqtab_stats)
 STATS_FILES.append(merge_reads_seqtab_stats_marker)
 
-# bimera
+# Bimera
 nobimera_seqtab = DATA_DIR.joinpath(
     BIMERAREMOVALFOLDER_NAME,'seqtab.nobimera.rds')
 nobimera_marker = DATA_DIR.joinpath(
@@ -217,7 +227,7 @@ nobimera_seqtab_stats_done = DATA_DIR.joinpath(BIMERAREMOVALFOLDER_NAME,'seqtab.
 STATS_FILES.append(nobimera_seqtab_stats)
 STATS_FILES.append(nobimera_seqtab_stats_done)
 
-# taxonomy
+# Taxonomy
 taxonomy_asv_file = DATA_DIR.joinpath(TAXONOMYFOLDER_NAME,'temp_asvs.tsv')
 taxonomy_marker_file = DATA_DIR.joinpath(TAXONOMYFOLDER_NAME,'temp_asvs.done')
 
@@ -235,7 +245,7 @@ OTU_ASV_FILES.append(asv_file)
 OTU_ASV_FILES.append(otu_file)
 OTU_ASV_FILES.append(marker_file)
 
-# usearch
+# Usearch
 USEARCH_FILES = DATA_DIR.joinpath(USEARCHFOLDER_NAME,'uparse.done')
 USEARCH_DIR = DATA_DIR.joinpath(USEARCHFOLDER_NAME)
 
@@ -243,7 +253,7 @@ USEARCH_DIR = DATA_DIR.joinpath(USEARCHFOLDER_NAME)
 insert_counts_file = DATA_DIR.joinpath(f'{PROJECT_NAME}.insert.counts')
 STATS_FILES_TOT.append(insert_counts_file)
 
-# defined community
+# Defined community
 assignment_file = DATA_DIR.joinpath(f'{PROJECT_NAME}.refs.tsv')
 DEFCOM_FILES.append(assignment_file)
 
@@ -310,7 +320,7 @@ rule insert_stats:
 
 rule cutadapt:
     """
-    filter and trim fastq files, outputs trimmed reads which passed the filters
+    Filter and trim fastq files, outputs trimmed reads which passed the filters
     """
     input:
         r1='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
@@ -355,7 +365,7 @@ rule cutadapt:
 
 rule dada2_filterAndTrim:
     """
-    truncate and discard reads using dada2 based on maxEE, quality score, number of N and length.
+    Truncate and discard reads using dada2 based on maxEE, quality score, number of N and length.
     """
     input:
         marker='{path}/' + CUTADAPTFOLDER_NAME + \
@@ -395,7 +405,7 @@ rule dada2_filterAndTrim:
 
 rule qc_stats:
     """
-    plot a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
+    Plot a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
     """
     input:
         r1_raw='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
@@ -426,7 +436,7 @@ rule qc_stats:
 
 rule r1r2_sample_files:
     """
-    create a file with sample names and the matching fastq file
+    Create a file with sample names and the matching fastq file
     """
     input:
         FILTERANDTRIM_FILES
@@ -443,7 +453,7 @@ rule r1r2_sample_files:
 
 rule dada2_learnErrors:
     """
-    calculates error estimates for nucleotide transition probabilities
+    Calculates error estimates for nucleotide transition probabilities
     """
     input:
         marker='{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1r2.samples.done',
@@ -508,7 +518,7 @@ rule dada2_inference:
 
 rule dada2_mergeReads:
     """
-    merge the reads
+    Merge the reads
     """
     input:
         marker_r1='{path}/' + DADAFOLDER_NAME + '/R1.dada.done',
@@ -571,7 +581,7 @@ rule bimera_removal:
 
 rule taxonomy:
     """
-    load an RDS file containing a sequence table and assign the taxonomy of ASVs/OTUs using IDTAXA
+    Load an RDS file containing a sequence table and assign the taxonomy of ASVs/OTUs using IDTAXA
     """
     input:
         tab_nobim='{path}/' + BIMERAREMOVALFOLDER_NAME + \
@@ -599,7 +609,7 @@ rule taxonomy:
 
 rule otu_asv:
     """
-    loads an ASV table and uses the UPARSE algorithm to cluster ASVs into OTUs and produce an OTU table
+    Loads an ASV table and uses the UPARSE algorithm to cluster ASVs into OTUs and produce an OTU table
     """
     input:
         asv_table='{path}/' + TAXONOMYFOLDER_NAME + '/temp_asvs.tsv',
@@ -627,7 +637,7 @@ rule otu_asv:
 
 rule read_stats:
     """
-    run bbmap: change quality encoding (qin) and run stats to check quality
+    Run bbmap: change quality encoding (qin) and run stats to check quality
     """
     input:
         fqz1='{sample}_R1.fastq.gz',
@@ -667,7 +677,7 @@ rule seqtab_stats:
 
 rule ref_assignment:
     """
-    perform sequence alignment between ASVs (Amplicon Sequence Variants) and a reference sequence database
+    Perform sequence alignment between ASVs (Amplicon Sequence Variants) and a reference sequence database
     """
     input:
         asvtab='{path}/' + PROJECT_NAME + '.asvs.tsv',
@@ -687,6 +697,9 @@ rule ref_assignment:
         '''
 
 rule uparse:
+    """
+    Perform USEARCH sequence alignment
+    """
     input:
         input_f=str(DATA_DIR / PROJECT_NAME) + '.otus.fasta',
         database=USEARCH_DB
@@ -695,5 +708,5 @@ rule uparse:
         output_d=directory(USEARCH_DIR)
     shell:
         '''
-        {SCRIPTFOLDER}uparse.sh -f {input.input_f} -o {output.output_d} -d {output.done_file} -b {input.database}
+        {SCRIPTFOLDER}uparse.sh -f {input.input_f} -o {output.output_d} -b {input.database}
         '''
