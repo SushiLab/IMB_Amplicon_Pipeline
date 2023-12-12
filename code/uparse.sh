@@ -9,10 +9,11 @@ done
 
 mkdir -p $output_d
 
+# Search for last common ancestor
 function lca(){ cat $@ | sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}' | awk -F ";" '{$NF=""; OFS=";"; print $0}'; return; }
 
 # Perform sequence alignment using usearch
-# search for 500 high identity hits (maxaccepts) in global alignment
+# Search for 500 high identity hits (maxaccepts) in global alignment
 usearch -usearch_global $input_f -db $database -id 0.8 -maxaccepts 500 -maxrejects 500 -strand both -top_hits_only -output_no_hits -blast6out $output_d/otus.tax -threads 32 &> $output_d/taxonomy.log
 
 # Extract information from the created 'otus.tax' file and create 'otus.lca'

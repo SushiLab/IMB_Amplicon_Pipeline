@@ -1,6 +1,6 @@
 # Check whether USEARCH is installed
 cat("Testing USEARCH is accessible...")
-usearch_test <- try(expr = system(command = "usearch",intern = T),silent = T)
+usearch_test <- try(expr = system(command = "usearch", intern = T), silent = T)
 if(class(usearch_test) == "try-error"){
       stop("USEARCH executable is not found. It should be loaded and be executable with the exact command `'usearch'. You can add aliases to your '.bashrc' file.", call.=FALSE)
 }
@@ -14,10 +14,11 @@ refs_fasta <- args[3]
 alntab_path <- sub(".fasta", ".aln", asvs_fasta)
 maxe <- as.numeric(args[4])
 output_path <- args[5]
+threads <- args[6]
 
 # USEARCH Alignment
 cat("Running USEARCH algorithm...")
-cmd <- system(command = paste("usearch -usearch_global", asvs_fasta, "-db",  refs_fasta, "-strand plus -blast6out", alntab_path, "-id 0.0 -maxaccepts 0 -threads 32"))
+cmd <- system(command = paste("usearch -usearch_global", asvs_fasta, "-db",  refs_fasta, "-strand plus -blast6out", alntab_path, "-id 0.0 -maxaccepts 0 -threads ", threads))
 cat("DONE\n")
 
 asvtab <- read.table(asvtab_path, sep="\t", header=T)
@@ -35,9 +36,9 @@ assign <- function(alntab){
     #' @return The function returns the best-matching reference ID(s) for each query sequence
     #'         based on alignment scores.
     #'
-    #' @details The function sorts the alntab data frame based on alignment scores in descending order
-    #'          to prioritize higher scores. It identifies the best hits considering multiple conditions
-    #'          when multiple hits have the same score and handles ambiguous matches.
+    #' @details The function sorts the alntab data frame based on alignment scores in descending order and checks for
+    #'          multiple best scores, and if so, then takes the longest alignment(s) and if there are > 1 at that point
+    #'          that's ambiguous.
 
     alntab <- alntab[order(alntab[,3], decreasing=T),]
     best_hits <- which(alntab[,3] == max(alntab[,3]))

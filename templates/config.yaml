@@ -6,7 +6,7 @@
 data_dir: '/path/to/your/data/'
 sample_file: 'samples'
 blocklist: 'blocklist'
-REFERENCE_SEQUENCE_FILE: 'path/to/your/reference'
+REFERENCE_SEQUENCE_FILE: 'path/to/your/reference' # can be left empty if you don't run defined community analysis
 
 
 #####################
@@ -30,7 +30,7 @@ LE_NBASES: '1e7'
 ##################
 
 runCutadapt: True
-allowUntrimmed: True
+allowUntrimmed: False
 runQC: True
 runLearnErrors: True
 runInference: True
@@ -40,7 +40,7 @@ runReadStats: True
 runASVTax: True
 runOTUTax: True
 runUSEARCH: True
-runDefCom: True
+runDefCom: False
 
 #########################
 ## END USER PARAMETERS ##
@@ -52,3 +52,4 @@ runDefCom: True
 
 silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
 primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
+USEARCH_DB: '/nfs/cds/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva.fasta'

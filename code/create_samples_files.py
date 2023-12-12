@@ -9,9 +9,11 @@ r2_file = sys.argv[3]
 def create_file_with_samples_and_file_paths(out_file, orientation, data_directory):
     """
     Create a file with sample names and the matching fastq file. (needed by dada)
-    :param out_file: name of the file that will be created
-    :param orientation: orientation of fastq file
-    :param data_directory: directory of the data
+
+    Parameters:
+    - out_file (str): name of the file that will be created
+    - orientation (str): orientation of fastq file
+    - data_directory (str): directory of the data
     """
     of = open(out_file, 'w')
     sample_2_file = {}

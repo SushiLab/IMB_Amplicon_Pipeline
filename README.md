@@ -8,7 +8,7 @@
   - allowUntrimmed and runDefCom
 
 
-**AUTHORS: Hans, Lilith**
+**AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
 **Documentation was last updated on 2023-12-04.**
 

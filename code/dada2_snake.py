@@ -677,7 +677,8 @@ rule seqtab_stats:
 
 rule ref_assignment:
     """
-    Perform sequence alignment between ASVs (Amplicon Sequence Variants) and a reference sequence database
+    Perform sequence alignment between ASVs (Amplicon Sequence Variants) and a reference sequence database (assign ASVs
+    to defined community members)
     """
     input:
         asvtab='{path}/' + PROJECT_NAME + '.asvs.tsv',
@@ -687,18 +688,19 @@ rule ref_assignment:
         marker=touch('{path}/' + PROJECT_NAME + '.refs.done')
     params:
         ref_fasta=REFERENCE_SEQUENCE_FILE,
+        threads=32,
     log:
         log='{path}/' + PROJECT_NAME + '.refassign.log',
     threads:
         32
     shell:
         '''
-        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} &> {log.log}
+        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} {params.threads}&> {log.log}
         '''
 
 rule uparse:
     """
-    Perform USEARCH sequence alignment
+    Perform USEARCH sequence alignment and search for last common ancestor
     """
     input:
         input_f=str(DATA_DIR / PROJECT_NAME) + '.otus.fasta',
