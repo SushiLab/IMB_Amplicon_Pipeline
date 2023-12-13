@@ -1,5 +1,7 @@
 # 16S pipeline from the Sunagawa Lab
+
 ### Important updates
+
 - `blacklist` is now called `blocklist`.
 - The newly added uparse rule can take a few hours to run depending on data size.
 - There is now more documentation in the code and in the readme.
@@ -11,11 +13,10 @@
   - `runDefCom`: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
   - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the defined community members (optional, only needed if you run `runDefCom`)
 
-
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
-**Documentation was last updated on 2023-12-04.**
 
+**Documentation was last updated on 2023-12-13.**
 This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and the code is from the now deprecated GENERAL_METAB_ANALYSIS_PAN pipeline. The pipeline consists of the following steps:
 
 ## Get/Name the data
@@ -23,6 +24,7 @@ This pipeline is supposed to perform all steps that we consider primary analysis
 The pipeline has been written to deal with short read Illumina sequencing data in the format or paired-end fastq files. All runs are processed together so that files/data that come from different batches/flowcells/flowlanes have to be run individually, e.g, as a different `(Sub)Project`.  
 
 ###  Format
+
 The pipeline has been written to deal with short read Illumina sequencing data in the format of gzipped paired-end fastq files.
 
 ###  Naming
@@ -335,6 +337,7 @@ snakemake -s /path/to/16S_pipeline/code/pipeline/dada2_snake.py --configfile /pa
 The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather than hours.
 
 
+
 ## Limitations
 ### Mixed orientations 
 
@@ -342,4 +345,16 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 
 ### N
 
-Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However, this is not covered in this pipeline.
+Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However this is not covered in this pipeline.
+
+## TODO
+
+- Table of Contents
+- Where to find the output file
+- Format/How to load into R
+	- load table
+	- alpha/beta div by default
+ - Merging of tables
+ 	- Can only merge with same primer pairs
+	- Parameters do not need to match 100%
+
