@@ -1,2 +1,15 @@
 $2022-01-17
 Project created
+$2023-11-23
+Pipeline was moved to public repository in order to share with collaborators.
+$2023-12-13
+- blacklist is now called blocklist.
+- The newly added uparse rule can take a few hours to run depending on data size.
+- There is now more documentation in the code and in the readme.
+- We added new options to the config file:
+    - FORWARD_PRIMER_SEQUENCE: Forward primer sequences, in case you don't have a primers file (optional)
+    - REVERSE_PRIMER_SEQUENCE: Reverse primer sequences, in case you don't have a primers file (optional)
+    - allowUntrimmed: Option for --discard-untrimmed in cutadapt
+    - runUSEARCH: Perform USEARCH sequence alignment and search for last common ancestor
+    - runDefCom: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
+    - REFERENCE_SEQUENCE_FILE: Reference sequence file of the defined community members (optional, only needed if you run runDefCom)
