@@ -277,7 +277,8 @@ if not runASVTax:
 if not runOTUTax:
     OTU_ASV_FILES = []
 if not runUSEARCH:
-    UPARSE_PATH = []
+    USEARCH_FILES = []
+    USEARCH_DIR = []
 if not runDefCom:
     DEFCOM_FILES = []
 
