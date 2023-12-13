@@ -13,10 +13,12 @@
   - `runDefCom`: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
   - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the defined community members (optional, only needed if you run `runDefCom`)
 
+
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
 
 **Documentation was last updated on 2023-12-13.**
+
 This pipeline is supposed to perform all steps that we consider primary analysis of 16S raw sequencing data and the code is from the now deprecated GENERAL_METAB_ANALYSIS_PAN pipeline. The pipeline consists of the following steps:
 
 ## Get/Name the data
@@ -128,9 +130,13 @@ The final ASV table is generated alongside taxonomic annotation using IDtaxa2 wi
 
 We produce, in addition to the ASV table, also an OTU table where ASVs are further clustered with `usearch` using a 97% cutoff. See below for the format.
 
-### Run USEARCH and DefCom
+### Run USEARCH 
 
-Perform a global sequence alignment and save the results in `otus.lca`.
+Perform USEARCH sequence alignment (database provided in `USEARCH_DB`) and search for last common ancestor.
+
+### Run DefCom
+
+Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members (`REFERENCE_SEQUENCE_FILE`).
 
 ## How to run the pipeline:
 ### Dependencies
@@ -346,15 +352,4 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 ### N
 
 Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However this is not covered in this pipeline.
-
-## TODO
-
-- Table of Contents
-- Where to find the output file
-- Format/How to load into R
-	- load table
-	- alpha/beta div by default
- - Merging of tables
- 	- Can only merge with same primer pairs
-	- Parameters do not need to match 100%
 
