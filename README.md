@@ -1,7 +1,8 @@
 # 16S pipeline from the Sunagawa Lab
 ### Important updates
-- "blacklist" is now called "blocklist"
-- The new added UPARSE function can take a few hours to run depending on data size. Credit to [@cmfield](https://github.com/cmfield) for the code.
+- "blacklist" is now called "blocklist".
+- The new added UPARSE function can take a few hours to run depending on data size.
+- There is now more documentation in the code and in the readme.
 - We added new options to the config file: 
   - Forward and reverse primer sequences, in case you don't have a primers file
   - Reference sequence file for the usearch rule
@@ -207,19 +208,18 @@ The example below should the output for a test dataset. It looks like we use the
 Example `config.yaml` file:
 
 ```yaml
-###################
-##USER PARAMETERS##
-###################
+##############################
+## FILE LOCATIONS AND NAMES ##
+##############################
 data_dir: '/path/to/your/data/'
 sample_file: 'samples'
 blocklist: 'blocklist'
+REFERENCE_SEQUENCE_FILE: 'path/to/your/reference' # can be left empty if you don't run defined community analysis
 
 
-#######################
-### USER PARAMETERS ###
-#######################
-
-
+#####################
+## USER PARAMETERS ##
+#####################
 FORWARD_PRIMER_NAME: '515f_parada'
 REVERSE_PRIMER_NAME: '806r_caporaso'
 FORWARD_PRIMER_SEQUENCE: # can be left empty if you have a primers file that contains the correct primer names
@@ -228,17 +228,14 @@ QC_MINLEN: '111'
 QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
-QC_TRUNCQ: '2'
 LE_NBASES: '1e7'
-REFERENCE_SEQUENCE_FILE: 'path/to/your/reference'
 
 
-################
-##STEPS TO RUN##
-################
-
+##################
+## STEPS TO RUN ##
+##################
 runCutadapt: True
-allowUntrimmed: True
+allowUntrimmed: False
 runQC: True
 runLearnErrors: True
 runInference: True
@@ -248,18 +245,19 @@ runReadStats: True
 runASVTax: True
 runOTUTax: True
 runUSEARCH: True
-runDefCom: True
+runDefCom: False
 
-#######################
-##END USER PARAMETERS##
-#######################
 
-#######################
-##STANDARD PARAMETERS##
-#######################
+#########################
+## END USER PARAMETERS ##
+#########################
 
-silva_training: 'path/to/SILVA_SSU_r138_2019.RData'
-primers: 'path/to/primers'
+
+
+# Standard parameters for the Sunagawa lab.
+silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
+primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
+USEARCH_DB: '/nfs/cds/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva.fasta'
 ```
 
 The `samples` file:

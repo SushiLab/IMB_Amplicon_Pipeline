@@ -1,5 +1,3 @@
-
-
 ##############################
 ## FILE LOCATIONS AND NAMES ##
 ##############################
@@ -12,8 +10,6 @@ REFERENCE_SEQUENCE_FILE: 'path/to/your/reference' # can be left empty if you don
 #####################
 ## USER PARAMETERS ##
 #####################
-
-
 FORWARD_PRIMER_NAME: '515f_parada'
 REVERSE_PRIMER_NAME: '806r_caporaso'
 FORWARD_PRIMER_SEQUENCE: # can be left empty if you have a primers file that contains the correct primer names
@@ -28,7 +24,6 @@ LE_NBASES: '1e7'
 ##################
 ## STEPS TO RUN ##
 ##################
-
 runCutadapt: True
 allowUntrimmed: False
 runQC: True
@@ -42,6 +37,7 @@ runOTUTax: True
 runUSEARCH: True
 runDefCom: False
 
+
 #########################
 ## END USER PARAMETERS ##
 #########################
@@ -49,7 +45,6 @@ runDefCom: False
 
 
 # Standard parameters for the Sunagawa lab.
-
 silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
 primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
 USEARCH_DB: '/nfs/cds/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva.fasta'
