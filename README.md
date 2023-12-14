@@ -1,4 +1,4 @@
-# 16S pipeline from the Sunagawa Lab
+# Amplicon pipeline from the Sunagawa Lab
 
 ### Important updates
 
