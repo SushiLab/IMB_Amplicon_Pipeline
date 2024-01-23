@@ -15,7 +15,6 @@ for r1_file in r1_files:
         print(f'r2 file doesnt exist. Quitting.')
         exit(1)
     samplename = r1_file.split('/')[-1].replace('_raw_1.fq.gz', '') # change this
-    samplenumber = int(samplename.replace('BC', ''))
 
     new_sample_name = 'GG021_029_S_' + samplename + '_METAB' # change this
     out_folder = dest_folder + new_sample_name + '/'
