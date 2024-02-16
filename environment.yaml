@@ -1,0 +1,17 @@
+name: metab-pipe
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - snakemake
+  - cutadapt=3.5
+  - bbmap=38.93
+  - bioconductor-biostrings
+  - bioconductor-dada2=1.22.0
+  - r-tidyverse
+  - r-data.table
+  - bioconductor-decipher
+  - biopython
+  - r-patchwork
+  - r-optparse
