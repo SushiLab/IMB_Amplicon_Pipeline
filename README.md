@@ -167,7 +167,7 @@ $ cat environment.yaml
 	  - r-optparse
 ```
 
-Installation can be done using conda (see [Installation instructions](https://docs.anaconda.com/free/miniconda/)). Navigate to the location of the repository and run the following commands:
+Installation can be done using conda (see [installation instructions](https://docs.anaconda.com/free/miniconda/)). Navigate to the location of the repository and run the following commands:
 
 ```
 $ conda env create -f environment.yaml
