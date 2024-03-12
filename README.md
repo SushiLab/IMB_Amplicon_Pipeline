@@ -167,7 +167,7 @@ $ cat environment.yaml
 	  - r-optparse
 ```
 
-Installation with conda ((Installation instructions)[https://docs.anaconda.com/free/miniconda/]) or mamba ((Installation instructions)[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html]). Navigate to the location of the repository and run the following commands:
+Installation can be done using conda (see [installation instructions](https://docs.anaconda.com/free/miniconda/)). Navigate to the location of the repository and run the following commands:
 
 ```
 $ conda env create -f environment.yaml
