@@ -141,10 +141,10 @@ Perform sequence alignment between Amplicon Sequence Variants and a reference se
 ## How to run the pipeline:
 ### Dependencies
 
-There are some tools that need to be installed upfront to run the pipeline. They can be wrapped into a conda environment though:
+There are some tools that need to be installed upfront to run the pipeline. They can be wrapped into a conda environment:
 
 ```
-$ cat metab-pipe.yml
+$ cat environment.yaml
 	name: metab-pipe
 	channels:
 	  - conda-forge
@@ -167,10 +167,10 @@ $ cat metab-pipe.yml
 	  - r-optparse
 ```
 
-Installation with conda/mamba:
+Installation with conda ((Installation instructions)[https://docs.anaconda.com/free/miniconda/]) or mamba ((Installation instructions)[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html]). Navigate to the location of the repository and run the following commands:
 
 ```
-$ conda create -f metab-pipe.yml
+$ conda env create -f environment.yaml
 $ conda activate metab-pipe
 ```
 
