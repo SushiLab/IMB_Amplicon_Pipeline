@@ -139,6 +139,12 @@ Perform USEARCH sequence alignment (database provided in `USEARCH_DB`) and searc
 Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members (`REFERENCE_SEQUENCE_FILE`).
 
 ## How to run the pipeline:
+### Clone the git repo
+Run this command in a folder where the pipeline should be installed (Git is required for this step. See the [git installation instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).):
+```
+git clone https://github.com/SushiLab/IMB_Amplicon_Pipeline.git
+```
+
 ### Dependencies
 
 There are some tools that need to be installed upfront to run the pipeline. They can be wrapped into a conda environment:
