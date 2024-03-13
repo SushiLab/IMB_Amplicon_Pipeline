@@ -1,7 +1,7 @@
 ##############################
 ## FILE LOCATIONS AND NAMES ##
 ##############################
-data_dir: '/path/to/your/data/'
+data_dir: '/path/to/your/data/' # e.g. /path/to/directory/SUNAGAWA/FEE24-1/
 sample_file: 'samples'
 blocklist: 'blocklist'
 REFERENCE_SEQUENCE_FILE: 'path/to/your/reference' # can be left empty if you don't run defined community analysis
