@@ -340,7 +340,6 @@ Next we will add samples that we don't want to analyze to the blocklist and run 
 
 ```bash
 conda activate metab-pipe
-touch blocklist # put here name of samples that we don't want to analyze
 # vim blocklist # run this line in case you have samples you want to exclude from analysis
 ls /path/to/your/data/0raw/ | sort > samples
 python /path/to/the/16S_pipeline/code/pipeline/estimate_parameters.py config.yaml 16
