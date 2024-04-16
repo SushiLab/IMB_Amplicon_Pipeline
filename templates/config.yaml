@@ -34,7 +34,9 @@ runRemoveBimeras: True
 runReadStats: True
 runASVTax: True
 runOTUTax: True
-runUSEARCH: True
+
+# Defined Community
+runUSEARCH: False
 runDefCom: False
 
 
