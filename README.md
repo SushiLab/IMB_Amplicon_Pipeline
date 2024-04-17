@@ -102,7 +102,7 @@ git clone https://github.com/SushiLab/IMB_Amplicon_Pipeline.git
 There are some tools that need to be installed upfront to run the pipeline. They can be wrapped into a conda environment:
 
 ```
-cat environment.yaml
+$ cat environment.yaml
 	name: metab-pipe
 	channels:
 	  - conda-forge
@@ -125,7 +125,7 @@ cat environment.yaml
 	  - r-optparse
 ```
 
-Installation can be done using conda (see [installation instructions](https://docs.anaconda.com/free/miniconda/)). Navigate to the location of the repository and run the following commands:
+Installation can be done using conda (see [installation instructions](https://docs.anaconda.com/free/miniconda/)). Navigate to the location of the git repository and run the following commands:
 
 ```
 conda env create -f environment.yaml
@@ -133,7 +133,7 @@ conda activate metab-pipe
 ```
 
 If it isn't already (try running `ml USEARCH` on the server), you need to [install](https://www.drive5.com/usearch/download.html) `USEARCH`.
-If you had to install `USEARCH` yourself, add it to your `.bashrc` using these commands (change the path to the path to your USEARCH installation):
+If that is the case, add the installation path to your `.bashrc` using these commands (change the path in the command to the path to your USEARCH installation):
 
 ```
 echo 'export PATH="/path/to/your/USEARCH/installation/bin:$PATH"' >> ~/.bashrc
@@ -143,7 +143,7 @@ source ~/.bashrc
 ### File Structure and Naming
 In this section, we will cover the structure of the input data.
 
-####  Format
+####  File Format
 
 The pipeline has been written to deal with short read Illumina sequencing data in the format of gzipped paired-end fastq files.
 
@@ -177,7 +177,7 @@ METAB = Datatype
 
 The exception to this rule are the Tara datasets that follow a slightly different scheme. But for those you will only see the resulting ASV/OTU table.
 
-####  File structure
+####  File Structure
 
 `Snakemake` is a great tool to execute the same commands on plenty of different input files. `Snakemake` is also terribly inflexible with file naming/structures. Therefore, we must provide the input files in the same file structure for snakemake to execute the jobs correctly.
 
@@ -195,7 +195,7 @@ SUBPROJECT/0raw/SUBPROJECT_SAMPLENAME_METAB/SUBPROJECT_SAMPLENAME_METAB_R1.fastq
 SUBPROJECT/0raw/SUBPROJECT_SAMPLENAME_METAB/SUBPROJECT_SAMPLENAME_METAB_R2.fastq.gz
 ```
 
-### How to run the Pipeline
+### Preparing configs and running the pipeline
 
 #### Example Config Files and Templates
 
