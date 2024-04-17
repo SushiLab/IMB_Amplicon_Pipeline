@@ -1,10 +1,10 @@
 ##############################
 ## FILE LOCATIONS AND NAMES ##
 ##############################
-data_dir: '/path/to/your/data/' # e.g. /path/to/directory/SUNAGAWA/FEE24-1/
+data_dir: '/path/to/your/analysis/' # e.g. /path/to/directory/SUNAGAWA/NAME24-1/
 sample_file: 'samples'
 blocklist: 'blocklist'
-REFERENCE_SEQUENCE_FILE: 'path/to/your/reference' # can be left empty if you don't run defined community analysis
+REFERENCE_SEQUENCE_FILE:  # e.g. '/path/to/your/reference'. Can be left empty if you don't run defined community analysis
 
 
 #####################
@@ -18,7 +18,7 @@ QC_MINLEN: '111'
 QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
-LE_NBASES: '1e7'
+LE_NBASES: '1e7' # The minimum number of total bases to use for error rate learning. Samples are read into memory until at least this number of total bases has been reached, or all provided samples have been read in.
 
 
 ##################
