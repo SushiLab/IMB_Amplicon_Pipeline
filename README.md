@@ -23,7 +23,7 @@ This pipeline is supposed to perform all steps that we consider primary analysis
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
 
-### Primer matching/removal - `cutadapt`  (`runCutadapt` step in the config)
+### Primer Matching/Removal - `cutadapt`  (`runCutadapt` step in the Config)
 
 In the first step we:
 
@@ -35,50 +35,51 @@ For most cases (excluding blanks) you should see that >90% of sequences survive 
 
 If you set `allowUntrimmed` to `True` in the `config.yaml`, then it will not discard untrimmed reads. You might need this option if the primers were not sequenced.
 
-### Quality control - `dada2`  (`runQC` step in the config)
+### Quality Control - `dada2`  (`runQC` Step in the Config)
 
 In this step we:
 
 1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads.
 2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the config.yaml).   
 
-### Error learning - `dada2`  (`runLearnErrors` step in the config)
+### Error Learning - `dada2`  (`runLearnErrors` Step in the Config)
 
 In this step we try to infer an error model using a predefined number of bases. 
 
 This step has to be executed twice - once for the forward reads, once for the reverse reads.
 
-### ASV inference - `dada2`  (`runInference` step in the config)
+### ASV Inference - `dada2`  (`runInference` Step in the Config)
 
 In this step we run the actual dada2 inference which will create the ASVs.
 
-### Read merging - `dada2`  (`runMergeReads` step in the config)
+### Read Merging - `dada2`  (`runMergeReads` Step in the Config)
 
 So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs.
 
-### Bimera removal - `dada2`  (`runRemoveBimeras` step in the config)
+### Bimera Removal - `dada2`  (`runRemoveBimeras` Step in the Config)
 
 `dada2` will use the merged ASVs as input to remove potential bimeras and chimeras. The output file contains the final but unannotated ASVs. 
 
-### Taxonomic annotation/ASV Table generation  (`runASVTax` step in the config)
+### Taxonomic Annotation/ASV Table Generation  (`runASVTax` Step in the Config)
 
 The final ASV table is generated alongside taxonomic annotation using IDtaxa2 with cutoffs calibrated for the TARA (Oceans + Pacific) datasets.
 
-### Taxonomic annotation/OTU Table generation  (`runOTUTax` step in the config)
+### Taxonomic Annotation/OTU Table Generation  (`runOTUTax` Step in the Config)
 
 We produce, in addition to the ASV table, also an OTU table where ASVs are further clustered with `usearch` using a 97% cutoff.
 
-### Run USEARCH  (`runUSEARCH` step in the config)
+### Run USEARCH  (`runUSEARCH` Step in the Config)
 
 In addition to taxonomic assignment using `IDTAXA`, we perform USEARCH sequence alignment against the database provided in the `config.yaml` parameter `USEARCH_DB` and search for last common ancestor (lca).
 
-### Run DefCom  (`runDefCom` step in the config)
+### Run DefCom  (`runDefCom` Step in the Config)
 
-Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of **Def**ined **Com**munity members (`REFERENCE_SEQUENCE_FILE`). It also uses the reference sequences in ASV resolution within `dada2`.
+Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of **Def**ined **Com**munity members (`REFERENCE_SEQUENCE_FILE`). 
+It also uses the reference sequences in ASV resolution within `dada2`.
 
 
 ## Limitations
-### Mixed orientations 
+### Mixed Orientations 
 
 Genoscope produces amplicon sequencing data where 1/2 reads start with the forward and the other half with the reverse primer. We have a pipeline for that but this is not included here. If you see that you get consistently ~50% of the reads through cutadapt, then you might need to check for the orientations.
 
@@ -87,13 +88,13 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However, this is not covered in this pipeline.
 
 
-## How to run the pipeline
+## How to run the Pipeline
 
 The pipeline has been written to deal with short read Illumina sequencing data in the format of paired-end fastq files. All runs are processed together so that files/data that come from different batches/flowcells/flowlanes have to be run individually, e.g, as a different `(Sub)Project`.  
 
 ### Installations needed
 
-#### Clone the git repo
+#### Clone the Git Repo
 Run this command in a folder where the pipeline should be installed (Git is required for this step. See the [git installation instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).):
 ```
 git clone https://github.com/SushiLab/IMB_Amplicon_Pipeline.git
@@ -197,7 +198,7 @@ SUBPROJECT/0raw/SUBPROJECT_SAMPLENAME_METAB/SUBPROJECT_SAMPLENAME_METAB_R1.fastq
 SUBPROJECT/0raw/SUBPROJECT_SAMPLENAME_METAB/SUBPROJECT_SAMPLENAME_METAB_R2.fastq.gz
 ```
 
-### Preparing configs and running the pipeline
+### Preparing Configs and Running the Pipeline
 
 #### Example Config Files and Templates
 
@@ -280,7 +281,7 @@ Example `blocklist` file:
 RANDOM_SAMPLE_TO_EXCLUDE
 ```
 
-#### Running the pipeline
+#### Running the Pipeline
 
 Navigate to the folder where the analysis is run and copy the templates for `map.py` and `config.yaml` to the folder where you run the analysis. Here, we will copy all templates to a subfolder dedicated to config files. We will later on add the correct samples to the samples files and blocklist.
 
@@ -334,11 +335,11 @@ Next, we will add samples that we don't want to analyze to the blocklist and add
 ls ../0raw/ | sort > samples # will create the samples file if you follow the same file structure as indicated above
 ```
 
-#### Estimating parameters
+#### Estimating Parameters
 
 In order to set the appropriate user parameters in the script, we will run `estimate_parameters.py`, which will create a file called `estimated_parameters.txt` as shown in the Parameters section below.
 
-##### Primer pairs
+##### Primer Pairs
 
 Creating amplicon sequencing data needs primers that are used to extract specific regions and to amplify extracted DNA in the next step. There are different protocols and different primer-sets used. The correct set of primers have to be set in the parameters to successfully run the analysis pipeline.
 If you are on the IMB servers, have access to the primers file in standard parameters section of `config.yaml` and are using one of the following primer pairs: 27f - 534r, 515f_caporaso - 806r_caporaso, 515f_parada - 806r_apprill, 515f_caporaso - 926r, 515f_parada - 926r or 799f - 1193r then you can run the script without specifying the `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE`.
@@ -358,7 +359,7 @@ After setting the primer pair, we can run `estimate_parameters.py`. The script w
 
 You can read more on the parameters here:
 
-##### Read length (`TRUNCLENR1` and `TRUNCLENR2`)
+##### Read Length (`TRUNCLENR1` and `TRUNCLENR2`)
 
 `dada2` tries to infer amplicon sequencing variants from quality controlled sequencing data. `dada2` would work best when there would be no errors in the sequencing data. Quality of bases usually drops the closer you are to the end of the sequence. `dada2`, therefore, suggests the following: Trim as many bases from the end of the read so that forward and reverse read can still merge. Also, trim more from the reverse read as the forward read generally has a higher quality. 
 
@@ -426,6 +427,69 @@ snakemake -s /path/to/amplicon_pipeline/code/pipeline/dada2_snake.py --configfil
 
 The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather than hours.
 
+## Pipeline Output Files
+When the IMB amplicon pipeline finished running, the folder will contain folders and files looking similar to this, if you ran all of the steps possible:
 
+| Output                  | File/Folder Description                                                                                                |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------|
+| 0raw                    | Folder with symbolic links to the raw files                                                                            |
+| 1cutadapt               | Folder containing cutadapt and readstats output                                                                        |
+| 2filterAndTrim          | Folder with filter & trim and readstats output                                                                         |
+| 3learnerrors            | Folder with learnerrors output                                                                                         |
+| 4sampleInference        | Folder with inference output                                                                                           |
+| 5mergeReads             | Folder with merged reads                                                                                               |
+| 6bimeraRemoval          | Folder with final but unannotated ASVs                                                                                 |
+| 7taxonomy               | Folder containing temporary files for annotation                                                                       |
+| 8uparsetax              | Folder with USEARCH taxonomic annotation output                                                                        |
+| configs                 | Folder with your configs, some scripts and estimated parameters                                                        |
+| NAME24-1.asvs.fasta     | Fasta file with ASV sequences                                                                                          |
+| NAME24-1.asvs.tsv       | File containing the ASVs, their taxonomic assignment and their counts for every sample                                 |
+| NAME24-1.benchmark      | File with resource usage of the command to cluster ASVs into OTUs                                                      |
+| NAME24-1.command        | File containing the command run for clustering ASVs into OTUs                                                          |
+| NAME24-1.done           | Done file. Signals to the pipeline that a certain step was completed                                                   |
+| NAME24-1.log            | File with logs from UPARSE command when clustering ASVs into OTUs                                                      |
+| NAME24-1.otus.fasta     | Fasta file with OTU sequences                                                                                          |
+| NAME24-1.otus.tsv       | File containing the OTUs, their taxonomic assignment and their counts for every sample                                 |
+| NAME24-1.otus.uparse    | File with uparse output. Read more [in the documentation](https://www.drive5.com/usearch/manual8.1/opt_uparseout.html) |
+| NAME24-1.refassign.log | File with logs from defined community analysis                                                                         |
+| NAME24-1.refs.done  | Done file. Signals to the pipeline that a defined community sequence alignment step was completed.                     |
+| NAME24-1.refs.tsv   | Output file from defined community analysis. See example below.                                                        |
 
+Here you can see a few examples for the files:
 
+### NAME24-1.asvs.tsv
+```bash
+asv     otu     uparse_info     seq     tax     NAME24-1_Sample_1_METAB  NAME24-1_Sample_2_METAB      NAME24-1_Sample_3_METAB   NAME24-1_Sample_4_METAB      NAME24-1_Sample_5_METAB 
+asv_0001;size=130643   otu1    *       TACGGAGGGTGCAAGCGTTAATCGGAATTACT rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;71.28|order;Alteromonadales;49.38|family;Marinobacteraceae;49.38|genus;Marinobacter;49.38     33116   161     38968   58390   8       
+asv_0002;size=1    otu2    dqt=49; TACGTAGGTGGCAAGCGTTGTCCGGATTTATT rootrank;Root;100|domain;Bacteria;100|phylum;Firmicutes;100|class;Bacilli;100|order;Lactobacillales;89.9|family;Listeriaceae;86.82|genus;Listeria;85.51       0       0       0       0       1
+asv_0003;size=66756    otu1    dqt=2;top=otu1(99.2%);  TACGGAGGGTGCAAGCGTTAATCGGAATT rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;82.79|order;Alteromonadales;79.46|family;Marinobacteraceae;79.46|genus;Marinobacter;79.46 66546   101     0       20      89      
+```
+
+### NAME24-1.asvs.fasta
+```bash
+>asv_0001;size=130643
+TACGGAGGGTGCAAGCGTTAATCGGAATTACT
+>asv_0002;size=1
+TACGTAGGTGGCAAGCGTTGTCCGGATTTATT
+```
+
+### NAME24-1.otus.uparse
+```bash
+asv_0001;size=130643   otu1    *
+asv_0002;size=1    otu2    dqt=49;
+```
+
+### NAME24-1.refs.tsv
+This output will be created if you run defined community analysis. Columns are samples and rows are the defined community members/unassigned ASVs. 
+If some ASVs are assigned to either none or two or more defined community members (ambiguous) you can see it below the defined community members.
+```bash
+NAME24-1_Sample_1_METAB  NAME24-1_Sample_2_METAB      NAME24-1_Sample_3_METAB   NAME24-1_Sample_4_METAB      NAME24-1_Sample_5_METAB
+Defined_community_member_1    30      9411    3785    1       3
+Defined_community_member_2    1       78      56      42      14
+Defined_community_member_3    60      7       0       900     6093
+Defined_community_member_4    5       1       3       70      41
+Defined_community_member_5    958     8760    9004    6305    820
+asv_001 (ambiguous)           55      0       92      55      70
+asv_123 (ambiguous)           0       0       6       9       0
+asv_022 (none)                8       9       0       0       0
+```
