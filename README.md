@@ -18,7 +18,7 @@ This pipeline is supposed to perform all steps that we consider primary analysis
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
-**Documentation was last updated on 2024-04-17.**
+**Documentation was last updated on 2024-04-19.**
 
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
@@ -428,41 +428,41 @@ snakemake -s /path/to/amplicon_pipeline/code/pipeline/dada2_snake.py --configfil
 The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather than hours.
 
 ## Pipeline Output Files
-When the IMB amplicon pipeline finished running, the folder will contain folders and files looking similar to this, if you ran all of the steps possible:
+When the IMB amplicon pipeline finished running all of the steps possible, the folder will contain folders and files looking similar to this:
 
-| Output                  | File/Folder Description                                                                                                |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------|
-| 0raw                    | Folder with symbolic links to the raw files                                                                            |
-| 1cutadapt               | Folder containing cutadapt and readstats output                                                                        |
-| 2filterAndTrim          | Folder with filter & trim and readstats output                                                                         |
-| 3learnerrors            | Folder with learnerrors output                                                                                         |
-| 4sampleInference        | Folder with inference output                                                                                           |
-| 5mergeReads             | Folder with merged reads                                                                                               |
-| 6bimeraRemoval          | Folder with final but unannotated ASVs                                                                                 |
-| 7taxonomy               | Folder containing temporary files for annotation                                                                       |
-| 8uparsetax              | Folder with USEARCH taxonomic annotation output                                                                        |
-| configs                 | Folder with your configs, some scripts and estimated parameters                                                        |
-| NAME24-1.asvs.fasta     | Fasta file with ASV sequences                                                                                          |
-| NAME24-1.asvs.tsv       | File containing the ASVs, their taxonomic assignment and their counts for every sample                                 |
-| NAME24-1.benchmark      | File with resource usage of the command to cluster ASVs into OTUs                                                      |
-| NAME24-1.command        | File containing the command run for clustering ASVs into OTUs                                                          |
-| NAME24-1.done           | Done file. Signals to the pipeline that a certain step was completed                                                   |
-| NAME24-1.log            | File with logs from UPARSE command when clustering ASVs into OTUs                                                      |
-| NAME24-1.otus.fasta     | Fasta file with OTU sequences                                                                                          |
-| NAME24-1.otus.tsv       | File containing the OTUs, their taxonomic assignment and their counts for every sample                                 |
-| NAME24-1.otus.uparse    | File with uparse output. Read more [in the documentation](https://www.drive5.com/usearch/manual8.1/opt_uparseout.html) |
-| NAME24-1.refassign.log | File with logs from defined community analysis                                                                         |
-| NAME24-1.refs.done  | Done file. Signals to the pipeline that a defined community sequence alignment step was completed.                     |
-| NAME24-1.refs.tsv   | Output file from defined community analysis. See example below.                                                        |
+| Output                 | File/Folder Description                                                                             |
+|------------------------|-----------------------------------------------------------------------------------------------------|
+| 0raw                   | Folder with symbolic links to the raw files                                                         |
+| 1cutadapt              | Folder containing cutadapt and readstats output                                                     |
+| 2filterAndTrim         | Folder with filter & trim and readstats output                                                      |
+| 3learnerrors           | Folder with learnerrors output                                                                      |
+| 4sampleInference       | Folder with inference output                                                                        |
+| 5mergeReads            | Folder with merged reads                                                                            |
+| 6bimeraRemoval         | Folder with final but unannotated ASVs                                                              |
+| 7taxonomy              | Folder containing temporary files for annotation                                                    |
+| 8uparsetax             | Folder with USEARCH taxonomic annotation output                                                     |
+| configs                | Folder with your configs, some scripts and estimated parameters                                     |
+| NAME24-1.asvs.fasta    | Fasta file with ASV sequences                                                                       |
+| NAME24-1.asvs.tsv      | File containing the ASVs, their taxonomic assignment and their counts for every sample              |
+| NAME24-1.benchmark     | File with resource usage of the command to cluster ASVs into OTUs                                   |
+| NAME24-1.command       | File containing the command run for clustering ASVs into OTUs                                       |
+| NAME24-1.done          | Done file: Signals to the pipeline that a ASV clustering was completed                              |
+| NAME24-1.log           | File with logs from UPARSE command when clustering ASVs into OTUs                                   |
+| NAME24-1.otus.fasta    | Fasta file with OTU sequences                                                                       |
+| NAME24-1.otus.tsv      | File containing the OTUs, their taxonomic assignment and their counts for every sample              |
+| NAME24-1.otus.uparse   | File with uparse output.                                                                            |
+| NAME24-1.refassign.log | File with logs from defined community analysis                                                      |
+| NAME24-1.refs.done     | Done file: Signals to the pipeline that the defined community sequence alignment step was completed |
+| NAME24-1.refs.tsv      | Output file from defined community analysis: See example below                                      |
 
-Here you can see a few examples for the files:
+Here you can see a few examples for the files. Please note that these were shortened and adapted from other output files:
 
 ### NAME24-1.asvs.tsv
 ```bash
-asv     otu     uparse_info     seq     tax     NAME24-1_Sample_1_METAB  NAME24-1_Sample_2_METAB      NAME24-1_Sample_3_METAB   NAME24-1_Sample_4_METAB      NAME24-1_Sample_5_METAB 
-asv_0001;size=130643   otu1    *       TACGGAGGGTGCAAGCGTTAATCGGAATTACT rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;71.28|order;Alteromonadales;49.38|family;Marinobacteraceae;49.38|genus;Marinobacter;49.38     33116   161     38968   58390   8       
-asv_0002;size=1    otu2    dqt=49; TACGTAGGTGGCAAGCGTTGTCCGGATTTATT rootrank;Root;100|domain;Bacteria;100|phylum;Firmicutes;100|class;Bacilli;100|order;Lactobacillales;89.9|family;Listeriaceae;86.82|genus;Listeria;85.51       0       0       0       0       1
-asv_0003;size=66756    otu1    dqt=2;top=otu1(99.2%);  TACGGAGGGTGCAAGCGTTAATCGGAATT rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;82.79|order;Alteromonadales;79.46|family;Marinobacteraceae;79.46|genus;Marinobacter;79.46 66546   101     0       20      89      
+asv                     otu     uparse_info             seq                               tax                                                                                                                                                                                   NAME24-1_Sample_1_METAB   NAME24-1_Sample_2_METAB       NAME24-1_Sample_3_METAB     NAME24-1_Sample_4_METAB       NAME24-1_Sample_5_METAB 
+asv_0001;size=130643    otu1    *                       TACGGAGGGTGCAAGCGTTAATCGGAATTACT  rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;71.28|order;Alteromonadales;49.38|family;Marinobacteraceae;49.38|genus;Marinobacter;49.38   33116                     161                           38968                       58390                         8       
+asv_0002;size=1         otu2    dqt=49;                 TACGTAGGTGGCAAGCGTTGTCCGGATTTATT  rootrank;Root;100|domain;Bacteria;100|phylum;Firmicutes;100|class;Bacilli;100|order;Lactobacillales;89.9|family;Listeriaceae;86.82|genus;Listeria;85.51                               0                         0                             0                           0                             1
+asv_0003;size=66756     otu1    dqt=2;top=otu1(99.2%);  TACGGAGGGTGCAAGCGTTAATCGGAATT     rootrank;Root;100|domain;Bacteria;100|phylum;Proteobacteria;100|class;Gammaproteobacteria;82.79|order;Alteromonadales;79.46|family;Marinobacteraceae;79.46|genus;Marinobacter;79.46   66546                     101                           0                           20                            89      
 ```
 
 ### NAME24-1.asvs.fasta
@@ -474,9 +474,10 @@ TACGTAGGTGGCAAGCGTTGTCCGGATTTATT
 ```
 
 ### NAME24-1.otus.uparse
+You can read more about interpreting the uparse output [in the documentation](https://www.drive5.com/usearch/manual8.1/opt_uparseout.html)
 ```bash
-asv_0001;size=130643   otu1    *
-asv_0002;size=1    otu2    dqt=49;
+asv_0001;size=130643    otu1    *
+asv_0002;size=1         otu2    dqt=49;
 ```
 
 ### NAME24-1.refs.tsv
