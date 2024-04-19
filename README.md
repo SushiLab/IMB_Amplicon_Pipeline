@@ -23,7 +23,7 @@ This pipeline is supposed to perform all steps that we consider primary analysis
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
 
-### Primer matching/removal - `cutadapt`  
+### Primer matching/removal - `cutadapt`  (`runCutadapt` step in the config)
 
 In the first step we:
 
@@ -33,46 +33,48 @@ In the first step we:
 
 For most cases (excluding blanks) you should see that >90% of sequences survive this step.
 
-### Quality control - `dada2`
+If you set `allowUntrimmed` to `True` in the `config.yaml`, then it will not discard untrimmed reads. You might need this option if the primers were not sequenced.
+
+### Quality control - `dada2`  (`runQC` step in the config)
 
 In this step we:
 
 1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads.
 2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the config.yaml).   
 
-### Error learning - `dada2`
+### Error learning - `dada2`  (`runLearnErrors` step in the config)
 
 In this step we try to infer an error model using a predefined number of bases. 
 
 This step has to be executed twice - once for the forward reads, once for the reverse reads.
 
-### ASV inference - `dada2`
+### ASV inference - `dada2`  (`runInference` step in the config)
 
 In this step we run the actual dada2 inference which will create the ASVs.
 
-### Read merging - `dada2`
+### Read merging - `dada2`  (`runMergeReads` step in the config)
 
 So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs.
 
-### Bimera removal - `dada2`
+### Bimera removal - `dada2`  (`runRemoveBimeras` step in the config)
 
 `dada2` will use the merged ASVs as input to remove potential bimeras and chimeras. The output file contains the final but unannotated ASVs. 
 
-### Taxonomic annotation/ASV Table generation
+### Taxonomic annotation/ASV Table generation  (`runASVTax` step in the config)
 
 The final ASV table is generated alongside taxonomic annotation using IDtaxa2 with cutoffs calibrated for the TARA (Oceans + Pacific) datasets.
 
-### Taxonomic annotation/OTU Table generation
+### Taxonomic annotation/OTU Table generation  (`runOTUTax` step in the config)
 
 We produce, in addition to the ASV table, also an OTU table where ASVs are further clustered with `usearch` using a 97% cutoff.
 
-### Run USEARCH 
+### Run USEARCH  (`runUSEARCH` step in the config)
 
-Perform USEARCH sequence alignment against the database provided in the config.yaml parameter `USEARCH_DB` and search for last common ancestor (lca).
+In addition to taxonomic assignment using `IDTAXA`, we perform USEARCH sequence alignment against the database provided in the `config.yaml` parameter `USEARCH_DB` and search for last common ancestor (lca).
 
-### Run DefCom
+### Run DefCom  (`runDefCom` step in the config)
 
-Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members (`REFERENCE_SEQUENCE_FILE`).
+Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of **Def**ined **Com**munity members (`REFERENCE_SEQUENCE_FILE`). It also uses the reference sequences in ASV resolution within `dada2`.
 
 
 ## Limitations
@@ -393,6 +395,28 @@ QC_TRUNC_R2: PARAM=TRUNCLENR2
 QC_MAXEE: PARAM=MAXEE
 ```
 
+And set the steps you would like to run to `True`, for example:
+
+```
+##################
+## STEPS TO RUN ##
+##################
+runCutadapt: True
+allowUntrimmed: False
+runQC: True
+runLearnErrors: True
+runInference: True
+runMergeReads: True
+runRemoveBimeras: True
+runReadStats: True
+runASVTax: True
+runOTUTax: True
+
+# Defined Community
+runUSEARCH: False
+runDefCom: False
+```
+
 When all the parameters are properly set, we will run the snakemake pipeline after loading the module USEARCH (`ml USEARCH` not needed if you have your own installation):
 
 ```bash
@@ -401,4 +425,7 @@ snakemake -s /path/to/amplicon_pipeline/code/pipeline/dada2_snake.py --configfil
 ```
 
 The number of cores should be updated depending on the resources. There is currently no Queue/Euler integration as these jobs require minutes rather than hours.
+
+
+
 
