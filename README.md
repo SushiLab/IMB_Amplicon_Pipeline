@@ -482,15 +482,15 @@ asv_0002;size=1         otu2    dqt=49;
 
 ### NAME24-1.refs.tsv
 This output will be created if you run defined community analysis. Columns are samples and rows are the defined community members/unassigned ASVs. 
-If some ASVs are assigned to either none or two or more defined community members (ambiguous) you can see it below the defined community members.
+If some ASVs are assigned to either none or two or more defined community members (ambiguous) you can see it in the rows below the defined community members.
 ```bash
-NAME24-1_Sample_1_METAB  NAME24-1_Sample_2_METAB      NAME24-1_Sample_3_METAB   NAME24-1_Sample_4_METAB      NAME24-1_Sample_5_METAB
-Defined_community_member_1    30      9411    3785    1       3
-Defined_community_member_2    1       78      56      42      14
-Defined_community_member_3    60      7       0       900     6093
-Defined_community_member_4    5       1       3       70      41
-Defined_community_member_5    958     8760    9004    6305    820
-asv_001 (ambiguous)           55      0       92      55      70
-asv_123 (ambiguous)           0       0       6       9       0
-asv_022 (none)                8       9       0       0       0
+                              NAME24-1_Sample_1_METAB   NAME24-1_Sample_2_METAB   NAME24-1_Sample_3_METAB   NAME24-1_Sample_4_METAB   NAME24-1_Sample_5_METAB
+Defined_community_member_1    30                        9411                      3785                      1                         3
+Defined_community_member_2    1                         78                        56                        42                        14
+Defined_community_member_3    60                        7                         0                         900                       6093
+Defined_community_member_4    5                         1                         3                         70                        41
+Defined_community_member_5    958                       8760                      9004                      6305                      820
+asv_001 (ambiguous)           55                        0                         92                        55                        70
+asv_123 (ambiguous)           0                         0                         6                         9                         0
+asv_022 (none)                8                         9                         0                         0                         0
 ```
