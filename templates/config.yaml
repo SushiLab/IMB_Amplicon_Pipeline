@@ -31,12 +31,10 @@ runLearnErrors: True
 runInference: True
 runMergeReads: True
 runRemoveBimeras: True
-runReadStats: True
+runReadStats: True # Run bbmap: change quality encoding (qin) and run stats to check quality
 runASVTax: True
 runOTUTax: True
-
-# Defined Community
-runUSEARCH: False
+runUSEARCH: True
 runDefCom: False
 
 
