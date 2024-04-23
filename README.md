@@ -14,7 +14,7 @@ This pipeline is supposed to perform all steps that we consider primary analysis
   - You can now run analysis for defined communities:
     - `runUSEARCH`: Perform USEARCH sequence alignment and search for last common ancestor
     - `runDefCom`: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
-    - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the defined community members (optional, only needed if you run `runDefCom`)
+    - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the  members (optional, only needed if you run `runDefCom`)
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
@@ -217,7 +217,7 @@ Example `config.yaml` file:
 data_dir: '/path/to/your/data/' # e.g. /path/to/directory/SUNAGAWA/NAME24-1/
 sample_file: 'samples'
 blocklist: 'blocklist'
-REFERENCE_SEQUENCE_FILE: # e.g. '/path/to/your/reference'. Can be left empty if you don't run defined community analysis
+REFERENCE_SEQUENCE_FILE: # e.g. '/path/to/your/reference'. Can be left empty if you don't run  analysis
 
 
 #####################
@@ -231,7 +231,7 @@ QC_MINLEN: '111'
 QC_TRUNC_R1: '161'
 QC_TRUNC_R2: '121'
 QC_MAXEE: '2'
-LE_NBASES: '1e7'
+LE_NBASES: '1e7' # The minimum number of total bases to use for error rate learning. Samples are read into memory until at least this number of total bases has been reached, or all provided samples have been read in.
 
 
 ##################
@@ -244,12 +244,10 @@ runLearnErrors: True
 runInference: True
 runMergeReads: True
 runRemoveBimeras: True
-runReadStats: True
+runReadStats: True # Run bbmap: change quality encoding (qin) and run stats to check quality
 runASVTax: True
 runOTUTax: True
-
-# Defined Community
-runUSEARCH: False
+runUSEARCH: True
 runDefCom: False
 
 
