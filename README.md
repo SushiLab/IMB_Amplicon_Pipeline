@@ -370,7 +370,7 @@ You can read more on the parameters here:
 `dada2` can't deal with sequences that contain the base `N`. That is why we remove sequences that contain this base. However, sometimes you will have a run where you have one bad cycle and the base at that specific position is set to `N` in all sequences. `dada2` allows to also remove bases from the beginning. This is not part of this standard pipeline but the existence of `N` in your data is reported by the `estimate_parameters.py` script.
 
 
-`estimate_parameters.py` will output a file called `estimated_parameters.txt` which contains the information mentioned above:
+In the following command, `estimate_parameters.py` will output a file called `estimated_parameters.txt` which contains the information mentioned above:
 
 ```bash
 python /path/to/the/amplicon_pipeline/code/pipeline/estimate_parameters.py config.yaml 16 > estimated_parameters.txt
@@ -444,11 +444,11 @@ When the IMB amplicon pipeline finished running all of the steps possible, the f
 | NAME24-1.asvs.tsv      | File containing the ASVs, their taxonomic assignment and their counts for every sample              |
 | NAME24-1.benchmark     | File with resource usage of the command to cluster ASVs into OTUs                                   |
 | NAME24-1.command       | File containing the command run for clustering ASVs into OTUs                                       |
-| NAME24-1.done          | Done file: Signals to the pipeline that a ASV clustering was completed                              |
+| NAME24-1.done          | Done file: Signals to the pipeline that ASV clustering was completed                              |
 | NAME24-1.log           | File with logs from UPARSE command when clustering ASVs into OTUs                                   |
 | NAME24-1.otus.fasta    | Fasta file with OTU sequences                                                                       |
 | NAME24-1.otus.tsv      | File containing the OTUs, their taxonomic assignment and their counts for every sample              |
-| NAME24-1.otus.uparse   | File with uparse output.                                                                            |
+| NAME24-1.otus.uparse   | File with uparse output                                                                            |
 | NAME24-1.refassign.log | File with logs from defined community analysis                                                      |
 | NAME24-1.refs.done     | Done file: Signals to the pipeline that the defined community sequence alignment step was completed |
 | NAME24-1.refs.tsv      | Output file from defined community analysis: See example below                                      |
