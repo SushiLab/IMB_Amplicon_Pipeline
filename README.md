@@ -281,7 +281,7 @@ RANDOM_SAMPLE_TO_EXCLUDE
 
 #### Running the Pipeline
 
-Navigate to the folder where the analysis is run and copy the templates for `map.py` and `config.yaml` to the folder where you run the analysis. Here, we will copy all templates to a subfolder dedicated to config files. We will later on add the correct samples to the samples files and blocklist.
+Navigate to the folder where the analysis is run and copy the templates to the folder where you run the analysis. Here, we will copy all templates to a subfolder dedicated to config files. We will later on add the correct samples to the `samples` and `blocklist` files.
 
 ```bash
 cd /where/you/run/your/analysis
@@ -302,7 +302,7 @@ Activate the conda environment:
 conda activate metab-pipe
 ```
 
-Next, edit the map file:
+Next, edit the `map.py` file:
 - Change `source_folder` & `dest_folder` accordingly (remember to add `/0raw/` at the end of `dest_folder`) 
 - Change `r1_file` & `r2_file` to the file ending that matches the files.
 - Change `samplename` such that it creates a unique sample name that matches with the names given by the researcher.
@@ -312,21 +312,21 @@ Next, edit the map file:
 vim map.py
 ```
 
-Add `data_dir` to the config file:
+Add `data_dir` to the `config.yaml` file:
 
 ```bash
 vim config.yaml
 ```
 
-Here, we will run `map.sh` and check that everything ran correctly.
+Here, we will run `map.sh` and double check that everything ran correctly.
 
 ```bash
 python map.py > map.sh
 ./map.sh
-ls -althr ../0raw/*/*gz | rev | cut -f 1 -d " " | rev | sort | uniq -c | wc -l # check whether double the amount of samples
+ls -althr ../0raw/*/*gz | rev | cut -f 1 -d " " | rev | sort | uniq -c | wc -l # check whether the output from this command equals double the amount of samples
 ```
 
-Next, we will add samples that we don't want to analyze to the blocklist and add all sample names to the samples file.
+Next, we will add samples that we don't want to analyze to the `blocklist` and add all sample names to the `samples` file.
 
 ```bash
 # vim blocklist # run this line in case you have samples you want to exclude from analysis
