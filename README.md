@@ -23,7 +23,7 @@ This pipeline performs all steps that we consider primary analysis of amplicon r
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
 
-### Primer Matching/Removal - `cutadapt`  (`runCutadapt` step in the config file)
+### Primer Matching/Removal - `cutadapt`  (`runCutadapt` step in the Config File)
 
 In the first step we:
 
@@ -35,44 +35,44 @@ For most cases (excluding blanks) you should see that >90% of sequences survive 
 
 If you set `allowUntrimmed` to `True` in the `config.yaml`, then it will not discard untrimmed reads. You might need this option if the primers were not sequenced.
 
-### Quality Control - `dada2`  (`runQC` Step in the Config)
+### Quality Control - `dada2`  (`runQC` Step in the Config File)
 
 In this step we:
 
 1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads. These parameters need to be set on the config file and need to be chosen based on the insert size. Trimming too many bases will make reads fail to merge and lead to empty ASV tables. The estimate_parameters.py script suggests parameters depending on the primer pair.
 2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the `config.yaml`).   
 
-### Error Learning - `dada2`  (`runLearnErrors` Step in the Config)
+### Error Learning - `dada2`  (`runLearnErrors` Step in the Config File)
 
 In this step we try to infer an error model using a predefined number of bases. 
 
 This step has to be executed twice - once for the forward reads, once for the reverse reads.
 
-### ASV Inference - `dada2`  (`runInference` Step in the Config)
+### ASV Inference - `dada2`  (`runInference` Step in the Config File)
 
 In this step we run the actual dada2 inference which will create the ASVs.
 
-### Read Merging - `dada2`  (`runMergeReads` Step in the Config)
+### Read Merging - `dada2`  (`runMergeReads` Step in the Config File)
 
 So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs. Check the number of bases trimmed in the quality control section when too few inserts merge.
 
-### Bimera Removal - `dada2`  (`runRemoveBimeras` Step in the Config)
+### Bimera Removal - `dada2`  (`runRemoveBimeras` Step in the Config File)
 
 `dada2` will use the merged ASVs as input to remove potential bimeras and chimeras. The output file contains the final but unannotated ASVs. 
 
-### Taxonomic Annotation/ASV Table Generation  (`runASVTax` Step in the Config)
+### Taxonomic Annotation/ASV Table Generation  (`runASVTax` Step in the Config File)
 
 The final ASV table is generated alongside taxonomic annotation using IDtaxa2 with cutoffs calibrated for the TARA (Oceans + Pacific) datasets.
 
-### Taxonomic Annotation/OTU Table Generation  (`runOTUTax` Step in the Config)
+### Taxonomic Annotation/OTU Table Generation  (`runOTUTax` Step in the Config File)
 
 We produce, in addition to the ASV table, also an OTU table where ASVs are further clustered with `usearch` using a 97% cutoff.
 
-### Run USEARCH  (`runUSEARCH` Step in the Config)
+### Run USEARCH  (`runUSEARCH` Step in the Config File)
 
 In addition to taxonomic assignment using `IDTAXA`, we perform USEARCH sequence alignment against the database provided in the `config.yaml` parameter `USEARCH_DB` and search for last common ancestor (lca).
 
-### Run DefCom  (`runDefCom` Step in the Config)
+### Run DefCom  (`runDefCom` Step in the Config File)
 
 Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of **Def**ined **Com**munity members (`REFERENCE_SEQUENCE_FILE`). 
 It also uses the reference sequences in ASV resolution within `dada2`.
