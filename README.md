@@ -1,10 +1,10 @@
 # Amplicon Pipeline from the Sunagawa Lab
 
-This pipeline is supposed to perform all steps that we consider primary analysis of amplicon raw sequencing data and the code is from the now deprecated GENERAL_METAB_ANALYSIS_PAN pipeline.
+This pipeline performs all steps that we consider primary analysis of amplicon raw sequencing data. The pipeline starts with raw sequencing data and generates a taxonomically annotated ASV and OTU table.
 
 ### Important Updates
 
-- `blacklist` is now called `blocklist`.
+
 - The newly added uparse rule can take a few hours to run depending on data size.
 - There is now more documentation in the code and in the readme.
 - We added new options to the config file: 
@@ -18,12 +18,12 @@ This pipeline is supposed to perform all steps that we consider primary analysis
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
-**Documentation was last updated on 2024-04-19.**
+**Documentation was last updated on 2024-04-24.**
 
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
 
-### Primer Matching/Removal - `cutadapt`  (`runCutadapt` step in the Config)
+### Primer Matching/Removal - `cutadapt`  (`runCutadapt` step in the config file)
 
 In the first step we:
 
@@ -39,8 +39,8 @@ If you set `allowUntrimmed` to `True` in the `config.yaml`, then it will not dis
 
 In this step we:
 
-1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads.
-2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the config.yaml).   
+1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads. These parameters need to be set on the config file and need to be chosen based on the insert size. Trimming too many bases will make reads fail to merge and lead to empty ASV tables. The estimate_parameters.py script suggests parameters depending on the primer pair.
+2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the `config.yaml`).   
 
 ### Error Learning - `dada2`  (`runLearnErrors` Step in the Config)
 
@@ -54,7 +54,7 @@ In this step we run the actual dada2 inference which will create the ASVs.
 
 ### Read Merging - `dada2`  (`runMergeReads` Step in the Config)
 
-So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs.
+So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs. Check the number of bases trimmed in the quality control section when too few inserts merge.
 
 ### Bimera Removal - `dada2`  (`runRemoveBimeras` Step in the Config)
 
@@ -85,7 +85,7 @@ Genoscope produces amplicon sequencing data where 1/2 reads start with the forwa
 
 ### N
 
-Reads with `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However, this is not covered in this pipeline.
+Reads containing non `ACTG` bases such as `N` can not be processed by dada. This means that reads with the letter `N` will be removed. In some cases an entire cycle in a run was bad which means that you need to remove a large fraction of the reads. You could remove the early parts of the read if the issue is in the beginning. However, this is not covered in this pipeline.
 
 
 ## How to run the Pipeline
@@ -135,7 +135,7 @@ conda env create -f environment.yaml
 conda activate metab-pipe
 ```
 
-If it isn't already (try running `ml USEARCH` on the server), you need to [install](https://www.drive5.com/usearch/download.html) `USEARCH`.
+If it isn't already installed (try running `ml USEARCH` on the server), you need to [install](https://www.drive5.com/usearch/download.html) `USEARCH`.
 If that is the case, add the installation path to your `.bashrc` using these commands (change the path in the command to the path to your USEARCH installation):
 
 ```
@@ -206,7 +206,7 @@ Templates for these config files can be found in the `templates` folder.
 
 1. `config.yaml`: The config file that contains parameters, locations of files and the rules that should be executed in the snakemake pipeline
 2. `samples`: The samples file contains a list of all samples that should be included in the analysis
-3. `blocklist`: The blocklist file contains a list of all samples that should be excluded from the analysis
+3. `blocklist`: The blocklist file contains a list of all samples that should be excluded from the analysis, e.g. when all reads of this sample are removed during QC.
 
 Example `config.yaml` file:
 
@@ -351,7 +351,7 @@ vim config.yaml
 After setting the primer pair, we can run `estimate_parameters.py`. The script will take 5000 reads from each sample in your dataset and ...
 
 - Will estimate parameters for every primer pair provided in the primers file or only for the primer pair provided by `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE`. 
-- Will estimate the minimal length of R2 and R1 reads.
+- Will estimate the minimal length of R2 and R1 reads required for them to merge.
 - Will output how many sequences pass the quality control using different values for `maxee`.
 - And will check whether there is an issue with `N` bases.
 
