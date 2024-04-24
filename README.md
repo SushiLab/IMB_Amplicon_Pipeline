@@ -11,8 +11,8 @@ This pipeline performs all steps that we consider primary analysis of amplicon r
   - `FORWARD_PRIMER_SEQUENCE`: Forward primer sequences, in case you don't have a primers file (optional)
   - `REVERSE_PRIMER_SEQUENCE`: Reverse primer sequences, in case you don't have a primers file (optional)
   - `allowUntrimmed`: Option for `--discard-untrimmed` in cutadapt
+  - `runUSEARCH`: Perform USEARCH sequence alignment and search for last common ancestor
   - You can now run analysis for defined communities:
-    - `runUSEARCH`: Perform USEARCH sequence alignment and search for last common ancestor
     - `runDefCom`: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
     - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the  members (optional, only needed if you run `runDefCom`)
 
@@ -389,7 +389,7 @@ vim config.yaml
 
 ```
 QC_MINLEN: PARAM=QCMINLEN
-QC_TRUNC_R1: PARAM=TRUNCLENR2
+QC_TRUNC_R1: PARAM=TRUNCLENR1
 QC_TRUNC_R2: PARAM=TRUNCLENR2
 QC_MAXEE: PARAM=MAXEE
 ```
