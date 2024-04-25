@@ -160,7 +160,7 @@ We have established a certain naming scheme that is used for all (meta)genomic s
 SUBPROJECT_SAMPLENAME_DATATYPE
 ```
 
-When this scheme is applied to a specific project, it could look like this. Note that the samplename can contain underscores as well:
+When this scheme is applied to a specific project, it could look like the example below. Note that the samplename itself can contain underscores `_` as well, but should not contain any dots `.`:
 
 ```
 NAME24-1_P019S5_METAB
@@ -445,6 +445,7 @@ When the IMB amplicon pipeline finished running all of the steps possible, the f
 | NAME24-1.benchmark     | File with resource usage of the command to cluster ASVs into OTUs                                   |
 | NAME24-1.command       | File containing the command run for clustering ASVs into OTUs                                       |
 | NAME24-1.done          | Done file: Signals to the pipeline that ASV clustering was completed                              |
+| NAME24-1.insert.counts | Output from `create_insert_stats.py`. Contains insert counts for each step of the pipeline (1 insert = 2 reads when paired end) | 
 | NAME24-1.log           | File with logs from UPARSE command when clustering ASVs into OTUs                                   |
 | NAME24-1.otus.fasta    | Fasta file with OTU sequences                                                                       |
 | NAME24-1.otus.tsv      | File containing the OTUs, their taxonomic assignment and their counts for every sample              |
@@ -491,4 +492,14 @@ Defined_community_member_5    958                       8760                    
 asv_001 (ambiguous)           55                        0                         92                        55                        70
 asv_123 (ambiguous)           0                         0                         6                         9                         0
 asv_022 (none)                8                         9                         0                         0                         0
+```
+
+### NAME24-1.insert.counts
+This file contains insert counts for each step of the pipeline. Inserts consist of 2 paired end reads.
+```bash
+sample  			0raw	1cutadapt	2filterAndTrim 	4sampleInference_R1  	4sampleInference_R2     5mergeReads     6bimeraRemoval  8asv_counts     8otu_counts
+NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	859721  		859781  		856405  	757325  	757325  	757010
+NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	760446  		760594  		757473  	670662  	670662  	670469
+NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	827562  		827666  		824548  	720805  	720805  	720660
+NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	684003  		684128  		681105  	604588  	604588  	604321
 ```
