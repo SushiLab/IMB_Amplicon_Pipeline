@@ -438,7 +438,7 @@ When the IMB amplicon pipeline finished running all of the steps possible, the f
 | 5mergeReads            | Folder with merged reads                                                                            |
 | 6bimeraRemoval         | Folder with final but unannotated ASVs                                                              |
 | 7taxonomy              | Folder containing temporary files for annotation                                                    |
-| 8uparsetax             | Folder with USEARCH taxonomic annotation output                                                     |
+| 8uparsetax             | Folder with USEARCH taxonomic annotation and last common ancestor (lca) output: `otus.tax` and `otus.lca` |
 | configs                | Folder with your configs, some scripts and estimated parameters                                     |
 | NAME24-1.asvs.fasta    | Fasta file with ASV sequences                                                                       |
 | NAME24-1.asvs.tsv      | File containing the ASVs, their taxonomic assignment and their counts for every sample              |
