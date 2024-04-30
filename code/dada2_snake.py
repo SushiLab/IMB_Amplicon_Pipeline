@@ -659,7 +659,7 @@ rule read_stats:
     shell:
         '''
         reformat.sh -Xmx8G pigz=t bgzip=f threads={threads} qin=33 in1={input.fqz1} in2={input.fqz2} bhist={output.bhist} qhist={output.qhist} qchist={output.qchist} aqhist={output.aqhist} bqhist={output.bqhist} lhist={output.lhist} gchist={output.gchist} 2> {log}
-       '''
+        '''
 
 rule seqtab_stats:
     """
