@@ -204,9 +204,11 @@ SUBPROJECT/0raw/SUBPROJECT_SAMPLENAME_METAB/SUBPROJECT_SAMPLENAME_METAB_R2.fastq
 
 Templates for these config files can be found in the `templates` folder.
 
-1. `config.yaml`: The config file that contains parameters, locations of files and the rules that should be executed in the snakemake pipeline
-2. `samples`: The samples file contains a list of all samples that should be included in the analysis
+1. `config.yaml`: The config file that contains parameters, locations of files and the rules that should be executed in the snakemake pipeline.
+2. `samples`: The samples file contains a list of all samples that should be included in the analysis.
 3. `blocklist`: The blocklist file contains a list of all samples that should be excluded from the analysis, e.g. when all reads of this sample are removed during QC.
+4. `primers`: A set of frequently used primers for which `estimate_parameters.py` was optimized.
+5. `map.py`: A python script to map the raw sequencing data to a standardized file and naming structure.
 
 Example `config.yaml` file:
 
@@ -266,17 +268,16 @@ USEARCH_DB: '/nfs/cds/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva
 Example `samples` file:
 
 ```bash
-TEST22-2_448_NOVOGENE_METAB
-TEST22-2_A_450_SUSHI_METAB
-TEST22-2_A_451_SUSHI_METAB
-TEST22-2_neg_mini_SUSHI_METAB
-RANDOM_SAMPLE_TO_EXCLUDE
+NAME24-1_448_NOVOGENE_METAB
+NAME24-1_A_450_SUSHI_METAB
+NAME24-1_A_451_SUSHI_METAB
+NAME24-1_neg_mini_SUSHI_METAB
 ```
 
 Example `blocklist` file: 
 
 ```bash
-RANDOM_SAMPLE_TO_EXCLUDE
+NAME24-1_neg_mini_SUSHI_METAB
 ```
 
 #### Running the Pipeline
@@ -303,7 +304,7 @@ conda activate metab-pipe
 ```
 
 Next, edit the `map.py` file:
-- Change `source_folder` & `dest_folder` accordingly (remember to add `/0raw/` at the end of `dest_folder`) 
+- Change `source_folder` & `dest_folder` accordingly (remember to add `/0raw/` at the end of `dest_folder`). 
 - Change `r1_file` & `r2_file` to the file ending that matches the files.
 - Change `samplename` such that it creates a unique sample name that matches with the names given by the researcher.
 - Update `new_sample_name`.
@@ -340,7 +341,7 @@ In order to set the appropriate user parameters in the script, we will run `esti
 ##### Primer Pairs
 
 Creating amplicon sequencing data needs primers that are used to extract specific regions and to amplify extracted DNA in the next step. There are different protocols and different primer-sets used. The correct set of primers have to be set in the parameters to successfully run the analysis pipeline.
-If you are on the IMB servers, have access to the primers file in standard parameters section of `config.yaml` and are using one of the following primer pairs: 27f - 534r, 515f_caporaso - 806r_caporaso, 515f_parada - 806r_apprill, 515f_caporaso - 926r, 515f_parada - 926r or 799f - 1193r then you can run the script without specifying the `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE`.
+If you are using one of the following primer pairs: `27f - 534r`, `515f_caporaso - 806r_caporaso`, `515f_parada - 806r_apprill`, `515f_caporaso - 926r`, `515f_parada - 926r` or `799f - 1193r` then you can specify the path to the `primers` file in the `config.yaml` (see templates) and run the script without specifying the `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE`.
 
 Add the appropriate `FORWARD_PRIMER_NAME` and `REVERSE_PRIMER_NAME` to `config.yaml`. If you haven't specified a primers file, add the `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE` as well.
 
@@ -351,7 +352,8 @@ vim config.yaml
 After setting the primer pair, we can run `estimate_parameters.py`. The script will take 5000 reads from each sample in your dataset and ...
 
 - Will estimate parameters for every primer pair provided in the primers file or only for the primer pair provided by `FORWARD_PRIMER_SEQUENCE` and `REVERSE_PRIMER_SEQUENCE`. 
-- Will estimate the minimal length of R2 and R1 reads required for them to merge.
+- Will estimate the minimal length of R2 and R1 reads required for them to merge. When using your own primer pair, please note that these calculations are optimized for the primers in the primers file and may not work well with your primers.
+- Will output which minimum length of reads in quality control may work best for your primers. Please be careful when using this parameter if you are using your own primers (not in the primers file).
 - Will output how many sequences pass the quality control using different values for `maxee`.
 - And will check whether there is an issue with `N` bases.
 
@@ -388,9 +390,10 @@ vim config.yaml
 ```
 
 ```
-QC_MINLEN: PARAM=QCMINLEN
-QC_TRUNC_R1: PARAM=TRUNCLENR1
-QC_TRUNC_R2: PARAM=TRUNCLENR2
+QC_MINLEN: PARAM=QCMINLis parameter suits your data (not in primers file)# if using your own primers, please double check whether these
+ QC_TRUNC_R1: PARAM=TRUNCLENR1
+QC_MINLEN: PARAM=QCMINLis parameter suits your data (not in primers file)# if using your own primers, please double check whether these
+QC_TRUNC_R2: PARAM=TRUNCLENR2 
 QC_MAXEE: PARAM=MAXEE
 ```
 
@@ -410,9 +413,7 @@ runRemoveBimeras: True
 runReadStats: True
 runASVTax: True
 runOTUTax: True
-
-# Defined Community
-runUSEARCH: False
+runUSEARCH: True
 runDefCom: False
 ```
 
@@ -428,31 +429,31 @@ The number of cores should be updated depending on the resources. There is curre
 ## Pipeline Output Files
 When the IMB amplicon pipeline finished running all of the steps possible, the folder will contain folders and files looking similar to this:
 
-| Output                 | File/Folder Description                                                                             |
-|------------------------|-----------------------------------------------------------------------------------------------------|
-| 0raw                   | Folder with symbolic links to the raw files                                                         |
-| 1cutadapt              | Folder containing cutadapt and readstats output                                                     |
-| 2filterAndTrim         | Folder with filter & trim and readstats output                                                      |
-| 3learnerrors           | Folder with learnerrors output                                                                      |
-| 4sampleInference       | Folder with inference output                                                                        |
-| 5mergeReads            | Folder with merged reads                                                                            |
-| 6bimeraRemoval         | Folder with final but unannotated ASVs                                                              |
-| 7taxonomy              | Folder containing temporary files for annotation                                                    |
-| 8uparsetax             | Folder with USEARCH taxonomic annotation and last common ancestor (lca) output: `otus.tax` and `otus.lca` |
-| configs                | Folder with your configs, some scripts and estimated parameters                                     |
-| NAME24-1.asvs.fasta    | Fasta file with ASV sequences                                                                       |
-| NAME24-1.asvs.tsv      | File containing the ASVs, their taxonomic assignment and their counts for every sample              |
-| NAME24-1.benchmark     | File with resource usage of the command to cluster ASVs into OTUs                                   |
-| NAME24-1.command       | File containing the command run for clustering ASVs into OTUs                                       |
-| NAME24-1.done          | Done file: Signals to the pipeline that ASV clustering was completed                              |
-| NAME24-1.insert.counts | Output from `create_insert_stats.py`. Contains insert counts for each step of the pipeline (1 insert = 2 reads when paired end) | 
-| NAME24-1.log           | File with logs from UPARSE command when clustering ASVs into OTUs                                   |
-| NAME24-1.otus.fasta    | Fasta file with OTU sequences                                                                       |
-| NAME24-1.otus.tsv      | File containing the OTUs, their taxonomic assignment and their counts for every sample              |
-| NAME24-1.otus.uparse   | File with uparse output                                                                            |
-| NAME24-1.refassign.log | File with logs from defined community analysis                                                      |
-| NAME24-1.refs.done     | Done file: Signals to the pipeline that the defined community sequence alignment step was completed |
-| NAME24-1.refs.tsv      | Output file from defined community analysis: See example below                                      |
+| Output                 | File/Folder Description                                                                                                         |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| 0raw                   | Folder with symbolic links to the raw files                                                                                     |
+| 1cutadapt              | Folder containing cutadapt and readstats output                                                                                 |
+| 2filterAndTrim         | Folder with filter & trim and readstats output                                                                                  |
+| 3learnerrors           | Folder with learnerrors output                                                                                                  |
+| 4sampleInference       | Folder with inference output                                                                                                    |
+| 5mergeReads            | Folder with merged reads                                                                                                        |
+| 6bimeraRemoval         | Folder with final but unannotated ASVs                                                                                          |
+| 7taxonomy              | Folder containing temporary files for annotation                                                                                |
+| 8uparsetax             | Folder with USEARCH taxonomic annotation and last common ancestor (lca) output for ASVs and OTUs                                |
+| configs                | Folder with your configs, some scripts and estimated parameters                                                                 |
+| NAME24-1.asvs.fasta    | Fasta file with ASV sequences                                                                                                   |
+| NAME24-1.asvs.tsv      | File containing the ASVs, their taxonomic assignment and their counts for every sample                                          |
+| NAME24-1.benchmark     | File with resource usage of the command to cluster ASVs into OTUs                                                               |
+| NAME24-1.command       | File containing the command run for clustering ASVs into OTUs                                                                   |
+| NAME24-1.done          | Done file: Signals to the pipeline that ASV clustering was completed                                                            |
+| NAME24-1.insert.counts | Output from `create_insert_stats.py`: Contains insert counts for each step of the pipeline (1 insert = 2 reads when paired end) | 
+| NAME24-1.log           | File with logs from UPARSE command when clustering ASVs into OTUs                                                               |
+| NAME24-1.otus.fasta    | Fasta file with OTU sequences                                                                                                   |
+| NAME24-1.otus.tsv      | File containing the OTUs, their taxonomic assignment and their counts for every sample                                          |
+| NAME24-1.otus.uparse   | File with uparse output                                                                                                         |
+| NAME24-1.refassign.log | File with logs from defined community analysis                                                                                  |
+| NAME24-1.refs.done     | Done file: Signals to the pipeline that the defined community sequence alignment step was completed                             |
+| NAME24-1.refs.tsv      | Output file from defined community analysis: See example below                                                                  |
 
 Here you can see a few examples for the files. Please note that these were shortened and adapted from other output files:
 
@@ -497,9 +498,9 @@ asv_022 (none)                8                         9                       
 ### NAME24-1.insert.counts
 This file contains insert counts for each step of the pipeline. Inserts consist of 2 paired end reads.
 ```bash
-sample  			0raw	1cutadapt	2filterAndTrim 	4sampleInference_R1  	4sampleInference_R2     5mergeReads     6bimeraRemoval  8asv_counts     8otu_counts
-NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	859721  		859781  		856405  	757325  	757325  	757010
-NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	760446  		760594  		757473  	670662  	670662  	670469
-NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	827562  		827666  		824548  	720805  	720805  	720660
-NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	684003  		684128  		681105  	604588  	604588  	604321
+sample  			            0raw	1cutadapt	2filterAndTrim 	4sampleInference_R1  	4sampleInference_R2     5mergeReads     6bimeraRemoval  8asv_counts     8otu_counts
+NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	    859721  		        859781  		        856405  	    757325  	    757325  	    757010
+NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	    760446  		        760594  		        757473  	    670662  	    670662  	    670469
+NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	    827562  		        827666  		        824548  	    720805  	    720805  	    720660
+NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	    684003  		        684128  		        681105  	    604588  	    604588  	    604321
 ```
