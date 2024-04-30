@@ -3,22 +3,13 @@
 This pipeline performs all steps that we consider primary analysis of amplicon raw sequencing data. The pipeline starts with raw sequencing data and generates a taxonomically annotated ASV and OTU table.
 
 ### Important Updates
-
-
-- The newly added uparse rule can take a few hours to run depending on data size.
-- There is now more documentation in the code and in the readme.
-- We added new options to the config file: 
-  - `FORWARD_PRIMER_SEQUENCE`: Forward primer sequences, in case you don't have a primers file (optional)
-  - `REVERSE_PRIMER_SEQUENCE`: Reverse primer sequences, in case you don't have a primers file (optional)
-  - `allowUntrimmed`: Option for `--discard-untrimmed` in cutadapt
-  - `runUSEARCH`: Perform USEARCH sequence alignment and search for last common ancestor
-  - You can now run analysis for defined communities:
-    - `runDefCom`: Perform sequence alignment between Amplicon Sequence Variants and a reference sequence database of defined community members
-    - `REFERENCE_SEQUENCE_FILE`: Reference sequence file of the  members (optional, only needed if you run `runDefCom`)
+- The documentation was revised. Please let us know, if anything is unclear. We are happy to get feedback.
+- The primers file is now available in the templates folder.
+- `runUSEARCH`: Now performs USEARCH sequence alignment against the Silva database & last common ancestor search for ASVs as well. (this can take a few hours depending on data size)
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
-**Documentation was last updated on 2024-04-24.**
+**Documentation was last updated on 2024-04-30.**
 
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
@@ -70,7 +61,7 @@ We produce, in addition to the ASV table, also an OTU table where ASVs are furth
 
 ### Run USEARCH  (`runUSEARCH` Step in the Config File)
 
-In addition to taxonomic assignment using `IDTAXA`, we perform USEARCH sequence alignment against the database provided in the `config.yaml` parameter `USEARCH_DB` and search for last common ancestor (lca).
+In addition to taxonomic assignment using `IDTAXA`, we perform USEARCH sequence alignment against the database provided in the `config.yaml` parameter `USEARCH_DB` and search for last common ancestor (lca) for both ASVs and OTUs.
 
 ### Run DefCom  (`runDefCom` Step in the Config File)
 
