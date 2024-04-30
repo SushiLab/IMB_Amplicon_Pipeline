@@ -701,15 +701,20 @@ rule ref_assignment:
 
 rule uparse:
     """
-    Perform USEARCH sequence alignment and search for last common ancestor
+    Perform USEARCH sequence alignment against silva database for ASVs and OTUs and search for last common ancestor
     """
     input:
-        input_f=str(DATA_DIR / PROJECT_NAME) + '.otus.fasta',
+        input_otus_f=str(DATA_DIR / PROJECT_NAME) + '.otus.fasta',
+        input_asvs_f=str(DATA_DIR / PROJECT_NAME) + '.asvs.fasta',
         database=USEARCH_DB
     output:
         done_file=touch(USEARCH_FILES),
-        output_d=directory(USEARCH_DIR)
+        output_d=directory(USEARCH_DIR),
+        output_lca_asvs=str(USEARCH_DIR) + PROJECT_NAME + '_asvs.lca',
+        output_lca_otus=str(USEARCH_DIR) + PROJECT_NAME + '_otus.lca',
+        output_tax_asvs=str(USEARCH_DIR) + PROJECT_NAME + '_asvs.tax',
+        output_tax_otus=str(USEARCH_DIR) + PROJECT_NAME + '_otus.tax'
     shell:
         '''
-        {SCRIPTFOLDER}uparse.sh -f {input.input_f} -o {output.output_d} -b {input.database}
+        {SCRIPTFOLDER}uparse.sh -a {input.input_otus_f} -t {input.input_asvs_f} -o {output.output_d} -b {input.database} -n {PROJECT_NAME}
         '''
