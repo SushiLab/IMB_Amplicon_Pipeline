@@ -489,9 +489,9 @@ asv_022 (none)                8                         9                       
 ### NAME24-1.insert.counts
 This file contains insert counts for each step of the pipeline. Inserts consist of 2 paired end reads.
 ```bash
-sample  			            0raw	1cutadapt	2filterAndTrim 	4sampleInference_R1  	4sampleInference_R2     5mergeReads     6bimeraRemoval  8asv_counts     8otu_counts
-NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	    859721  		        859781  		        856405  	    757325  	    757325  	    757010
-NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	    760446  		        760594  		        757473  	    670662  	    670662  	    670469
-NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	    827562  		        827666  		        824548  	    720805  	    720805  	    720660
-NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	    684003  		        684128  		        681105  	    604588  	    604588  	    604321
+sample  			0raw	1cutadapt	2filterAndTrim	4sampleInference_R1	4sampleInference_R2	5mergeReads	6bimeraRemoval	8asv_counts	8otu_counts
+NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	859721  		859781  		856405  	757325  	757325  	757010
+NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	760446  		760594  		757473  	670662  	670662  	670469
+NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	827562  		827666  		824548  	720805  	720805  	720660
+NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	684003  		684128  		681105  	604588  	604588  	604321
 ```
