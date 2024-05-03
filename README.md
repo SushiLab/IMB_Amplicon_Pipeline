@@ -381,10 +381,9 @@ vim config.yaml
 ```
 
 ```
-QC_MINLEN: PARAM=QCMINLis parameter suits your data (not in primers file)# if using your own primers, please double check whether these
- QC_TRUNC_R1: PARAM=TRUNCLENR1
-QC_MINLEN: PARAM=QCMINLis parameter suits your data (not in primers file)# if using your own primers, please double check whether these
-QC_TRUNC_R2: PARAM=TRUNCLENR2 
+QC_MINLEN: PARAM=QCMINLEN 	# if using other primers than in the primers file, please double check whether this estimated parameter suits your data
+QC_TRUNC_R1: PARAM=TRUNCLENR1	# if using other primers than in the primers file, please double check whether this estimated parameter suits your data
+QC_TRUNC_R2: PARAM=TRUNCLENR2 	# if using other primers than in the primers file, please double check whether this estimated parameter suits your data
 QC_MAXEE: PARAM=MAXEE
 ```
 
