@@ -321,7 +321,10 @@ rule insert_stats:
 
 rule cutadapt:
     """
-    Filter and trim fastq files, outputs trimmed reads which passed the filters
+    Filter and trim fastq files, outputs trimmed reads which passed the filters 
+    - Remove primers
+    - Remove sequences where either forward or reverse primer is missing
+    - Remove multiple copies of primers
     """
     input:
         r1='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
