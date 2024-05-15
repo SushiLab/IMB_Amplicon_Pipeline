@@ -34,7 +34,7 @@ runRemoveBimeras: True
 runReadStats: True # Run bbmap: change quality encoding (qin) and run stats to check quality
 runASVTax: True
 runOTUTax: True
-runUSEARCH: True
+runUSEARCH: True # If using, please note that we are using a minimum sequence identity of 0.8 for a hit. This leads to false positives in lesser known environments.
 runDefCom: False
 
 
