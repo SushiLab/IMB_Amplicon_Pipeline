@@ -5,7 +5,7 @@ This pipeline performs all steps that we consider primary analysis of amplicon r
 ### Important Updates
 - The documentation was revised. Please let us know, if anything is unclear. We are happy to get feedback.
 - The primers file is now available in the templates folder.
-- `runUSEARCH`: Now performs USEARCH sequence alignment against the Silva database & last common ancestor search for ASVs as well. (this can take a few hours depending on data size)
+- `runUSEARCH`: Now performs USEARCH sequence alignment against the Silva database & last common ancestor search for ASVs as well. (this can take a few hours depending on data size) Please note that we are using a [minimum sequence identity](https://drive5.com/usearch/manual/opt_id.html) of 0.8 for a hit. This leads to false positives in lesser known environments.
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
