@@ -47,4 +47,4 @@ runDefCom: False
 # Standard parameters for the Sunagawa lab.
 silva_training: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/SILVA_SSU_r138_2019.RData'
 primers: '/nfs/nas22/fs2202/biol_micro_sunagawa/Projects/PAN/GENERAL_METAB_ANALYSIS_PAN/data/resources/primers'
-USEARCH_DB: '/nfs/cds/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva.fasta'
+USEARCH_DB: '/nfs/cds-shini.ethz.ch/exports/biol_micro_cds_gr_sunagawa/Databases/SILVA/SILVA138/SILVA_138.1_SSURef_NR99_tax_silva.fasta'
