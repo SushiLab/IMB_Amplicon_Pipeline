@@ -1,6 +1,6 @@
 # Amplicon Pipeline from the Sunagawa Lab
 
-This pipeline performs all steps that we consider primary analysis of amplicon raw sequencing data. The pipeline starts with raw sequencing data and generates a taxonomically annotated ASV and OTU table.
+This pipeline performs all steps that we consider primary analysis of amplicon raw sequencing data. The pipeline starts with raw sequencing data and generates a taxonomically annotated amplicon sequence variant (ASV) and operational taxonomic unit (OTU) table.
 
 ### Important Updates
 - The documentation was revised. Please let us know, if anything is unclear. We are happy to get feedback.
@@ -493,4 +493,19 @@ NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	859721  		859781  		8564
 NAME24-1_Sample_2_METAB      	819817 	813457  	760931  	760446  		760594  		757473  	670662  	670662  	670469
 NAME24-1_Sample_3_METAB      	887261 	879989  	827964  	827562  		827666  		824548  	720805  	720805  	720660
 NAME24-1_Sample_4_METAB      	732524 	726682  	684555  	684003  		684128  		681105  	604588  	604588  	604321
+```
+
+### NAME24-1_asvs.tax
+This file contains the taxonomic annotations with the highest percent identity found using usearch and the silva database. If the percent identity of the top matches is identical, you will find all of them in the output (see example). You can read about the details of the format [in the documentation](https://drive5.com/usearch/manual/blast6out.html). Please always double check the actual percent identity, as we are using 80% as a cutoff, which is not at species level (It will output the species level taxonomic annotation, even though the percent identity might be at 82%, which is not at species level).
+```bash
+asv_0001;size=1234   CP002003.1766641.1768196 Bacteria;Firmicutes;Bacilli;Lactobacillales;Listeriaceae;Listeria;Listeria monocytogenes FSL R2-561    100.0   253     0       0       1       253     1    1556     *       *
+asv_0001;size=1234   CP002002.2630961.2632498 Bacteria;Firmicutes;Bacilli;Lactobacillales;Listeriaceae;Listeria;Listeria monocytogenes 10403S        100.0   253     0       0       1       253     1    1538     *       *
+asv_0001;size=1234   CP002003.1872561.1874116 Bacteria;Firmicutes;Bacilli;Lactobacillales;Listeriaceae;Listeria;Listeria monocytogenes FSL R2-561    100.0   253     0       0       1       253     1    1556     *       *
+```
+
+### NAME24-1_asvs.lca
+This file shows the last common ancestor (lca) for all silva top hits of each amplicon sequence variant. It checks all the hits for an ASV in `NAME24-1_asvs.tax` and outputs the rank all hits have in common. In the example below, the last common ancestor of asv_1 is Bifidobacterium and the percent identity is 100.0. In the example for asv_2, you can see that there was no hit for it in `NAME24-1_asvs.tax`.
+```bash
+asv_1;size=1337      Bacteria;Actinobacteriota;Actinobacteria;Bifidobacteriales;Bifidobacteriaceae;Bifidobacterium;   100.0
+asv_2;size=1234              0
 ```
