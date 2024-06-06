@@ -710,10 +710,10 @@ rule uparse:
     output:
         done_file=touch(USEARCH_FILES),
         output_d=directory(USEARCH_DIR),
-        output_lca_asvs=str(USEARCH_DIR) + PROJECT_NAME + '_asvs.lca',
-        output_lca_otus=str(USEARCH_DIR) + PROJECT_NAME + '_otus.lca',
-        output_tax_asvs=str(USEARCH_DIR) + PROJECT_NAME + '_asvs.tax',
-        output_tax_otus=str(USEARCH_DIR) + PROJECT_NAME + '_otus.tax'
+        output_lca_asvs=str(USEARCH_DIR) + '/' + PROJECT_NAME + '_asvs.lca',
+        output_lca_otus=str(USEARCH_DIR) + '/' + PROJECT_NAME + '_otus.lca',
+        output_tax_asvs=str(USEARCH_DIR) + '/' + PROJECT_NAME + '_asvs.tax',
+        output_tax_otus=str(USEARCH_DIR) + '/' + PROJECT_NAME + '_otus.tax'
     shell:
         '''
         {SCRIPTFOLDER}uparse.sh -a {input.input_otus_f} -t {input.input_asvs_f} -o {output.output_d} -b {input.database} -n {PROJECT_NAME}
