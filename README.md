@@ -6,6 +6,7 @@ This pipeline performs all steps that we consider primary analysis of amplicon r
 - The documentation was revised. Please let us know, if anything is unclear. We are happy to get feedback.
 - The primers file is now available in the templates folder.
 - `runUSEARCH`: Now performs USEARCH sequence alignment against the Silva database & last common ancestor search for ASVs as well. (this can take a few hours depending on data size) Please note that we are using a [minimum sequence identity](https://drive5.com/usearch/manual/opt_id.html) of 0.8 for a hit, which will lead to false positives. Double check the actual sequence identity shown in the output.
+- We added `split_snake.py`, which is a snakemake pipeline that separates mixed orientation reads into separate files. After separating the reads, you will have 4 files: forward R1, reverse R1, forward R2 and reverse R2. Remember to analyze the R1 and R2 files then separately, to train the error model properly (run the pipeline twice: once on fw R1 & rv R1 and once on fw R2 & rv R2).
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
