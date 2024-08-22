@@ -24,6 +24,7 @@ LE_NBASES: '1e7' # The minimum number of total bases to use for error rate learn
 ##################
 ## STEPS TO RUN ##
 ##################
+pairedEnd: True
 runCutadapt: True
 allowUntrimmed: False
 runQC: True

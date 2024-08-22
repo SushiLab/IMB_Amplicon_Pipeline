@@ -5,15 +5,15 @@ import collections
 
 # Parse arguments
 data_dir = sys.argv[1]
-if len(sys.argv) > 2:
-    out_file = sys.argv[2]
-else:
-    out_file = False
+out_file = sys.argv[2]
+pairedEnd = sys.argv[3]
+
 
 files = [('6bimeraRemoval', '6bimeraRemoval/seqtab.nobimera.stats'),
          ('4sampleInference_R1', '4sampleInference/R1.seqtab.stats'),
          ('4sampleInference_R2', '4sampleInference/R2.seqtab.stats'),
          ('5mergeReads', '5mergeReads/seqtab.mergereads.stats')]
+
 
 steps = set()
 sample_2_step_2_inserts = {}

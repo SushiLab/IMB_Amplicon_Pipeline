@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 '''
 FILES + FOLDERS + PARAMS
@@ -18,6 +19,7 @@ LE_NBASES = config['LE_NBASES']
 USEARCH_DB = config['USEARCH_DB']
 SCRIPTFOLDER = workflow.basedir + "/"
 
+pairedEnd = config['pairedEnd']
 runCutadapt = config['runCutadapt']
 allowUntrimmed = config['allowUntrimmed']
 runQC = config['runQC']
@@ -31,6 +33,8 @@ runOTUTax = config['runOTUTax']
 runUSEARCH = config['runUSEARCH']
 runDefCom = config['runDefCom']
 
+if runMergeReads and not pairedEnd:
+    sys.exit("Cannot merge single end data. Please check steps to run in the config file.")
 
 def get_primers(primer_file):
     """
@@ -59,9 +63,10 @@ def get_primers(primer_file):
 FORWARD_PRIMER_SEQUENCE = config.get('FORWARD_PRIMER_SEQUENCE')
 if FORWARD_PRIMER_SEQUENCE is None:
     FORWARD_PRIMER_SEQUENCE = get_primers(PRIMERS_FILE)[FORWARD_PRIMER_NAME][0]
-REVERSE_PRIMER_SEQUENCE = config.get('REVERSE_PRIMER_SEQUENCE')
-if REVERSE_PRIMER_SEQUENCE is None:
-    REVERSE_PRIMER_SEQUENCE = get_primers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
+if pairedEnd:
+    REVERSE_PRIMER_SEQUENCE = config.get('REVERSE_PRIMER_SEQUENCE')
+    if REVERSE_PRIMER_SEQUENCE is None:
+        REVERSE_PRIMER_SEQUENCE = get_primers(PRIMERS_FILE)[REVERSE_PRIMER_NAME][0]
 
 # Get reference sequence file and exit if none is provided and runDefCom should be run
 REFERENCE_SEQUENCE_FILE = config.get('REFERENCE_SEQUENCE_FILE')
@@ -121,27 +126,31 @@ for sample in SAMPLES:
 
     cutadapt_seqfile_1 = DATA_DIR.joinpath(
         CUTADAPTFOLDER_NAME,sample,sample + '_R1.fastq.gz')
-    cutadapt_seqfile_2 = DATA_DIR.joinpath(
-        CUTADAPTFOLDER_NAME,sample,sample + '_R2.fastq.gz')
+    if pairedEnd:
+        cutadapt_seqfile_2 = DATA_DIR.joinpath(
+            CUTADAPTFOLDER_NAME,sample,sample + '_R2.fastq.gz')
     cutadapt_marker = DATA_DIR.joinpath(
         CUTADAPTFOLDER_NAME,sample,sample + '.cutadapt.done')
     cutadapt_stats = DATA_DIR.joinpath(CUTADAPTFOLDER_NAME,sample,sample + '.readstats.done')
 
     CUTADAPT_FILES.append(cutadapt_seqfile_1)
-    CUTADAPT_FILES.append(cutadapt_seqfile_2)
+    if pairedEnd:
+        CUTADAPT_FILES.append(cutadapt_seqfile_2)
     CUTADAPT_FILES.append(cutadapt_marker)
     STATS_FILES.append(cutadapt_stats)
 
     filterandtrim_seqfile_1 = DATA_DIR.joinpath(
         FILTERANDTRIMFOLDER_NAME,sample,sample + '_R1.fastq.gz')
-    filterandtrim_seqfile_2 = DATA_DIR.joinpath(
-        FILTERANDTRIMFOLDER_NAME,sample,sample + '_R2.fastq.gz')
+    if pairedEnd:
+        filterandtrim_seqfile_2 = DATA_DIR.joinpath(
+            FILTERANDTRIMFOLDER_NAME,sample,sample + '_R2.fastq.gz')
     filterandtrim_marker = DATA_DIR.joinpath(
         FILTERANDTRIMFOLDER_NAME,sample,sample + '.filterandtrim.done')
     filterandtrim_stats = DATA_DIR.joinpath(FILTERANDTRIMFOLDER_NAME,sample,sample + '.readstats.done')
 
     FILTERANDTRIM_FILES.append(filterandtrim_seqfile_1)
-    FILTERANDTRIM_FILES.append(filterandtrim_seqfile_2)
+    if pairedEnd:
+        FILTERANDTRIM_FILES.append(filterandtrim_seqfile_2)
     FILTERANDTRIM_FILES.append(filterandtrim_marker)
     STATS_FILES.append(filterandtrim_stats)
 
@@ -155,64 +164,73 @@ PROJECT SPECIFIC ANALYSIS FILES
 
 # r1.samples & r2.samples
 r1_samples_file = DATA_DIR.joinpath(FILTERANDTRIMFOLDER_NAME,'r1.samples')
-r2_samples_file = DATA_DIR.joinpath(FILTERANDTRIMFOLDER_NAME,'r2.samples')
+if pairedEnd:
+    r2_samples_file = DATA_DIR.joinpath(FILTERANDTRIMFOLDER_NAME,'r2.samples')
 r1r2_marker_file = DATA_DIR.joinpath(
     FILTERANDTRIMFOLDER_NAME,'r1r2.samples.done')
 LEARNERROR_FILES.append(r1_samples_file)
-LEARNERROR_FILES.append(r2_samples_file)
-LEARNERROR_FILES.append(r1r2_marker_file)
+if pairedEnd:
+    LEARNERROR_FILES.append(r2_samples_file)
+    LEARNERROR_FILES.append(r1r2_marker_file)
 
 # Learn errors
 r1_learnerrors_file = DATA_DIR.joinpath(
     LEARNERRORFOLDER_NAME,'R1.learnerrors.rds')
 r1_learnerrors_marker = DATA_DIR.joinpath(
     LEARNERRORFOLDER_NAME,'R1.learnerrors.done')
-r2_learnerrors_file = DATA_DIR.joinpath(
-    LEARNERRORFOLDER_NAME,'R2.learnerrors.rds')
-r2_learnerrors_marker = DATA_DIR.joinpath(
-    LEARNERRORFOLDER_NAME,'R2.learnerrors.done')
+if pairedEnd:
+    r2_learnerrors_file = DATA_DIR.joinpath(
+        LEARNERRORFOLDER_NAME,'R2.learnerrors.rds')
+    r2_learnerrors_marker = DATA_DIR.joinpath(
+        LEARNERRORFOLDER_NAME,'R2.learnerrors.done')
 LEARNERROR_FILES.append(r1_learnerrors_file)
 LEARNERROR_FILES.append(r1_learnerrors_marker)
-LEARNERROR_FILES.append(r2_learnerrors_file)
-LEARNERROR_FILES.append(r2_learnerrors_marker)
+if pairedEnd:
+    LEARNERROR_FILES.append(r2_learnerrors_file)
+    LEARNERROR_FILES.append(r2_learnerrors_marker)
 
 # Inference
 r1_dada_seqtab_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.seqtab.rds')
 r1_dada_dd_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.dd.rds')
 r1_dada_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.dada.done')
-r2_dada_seqtab_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.rds')
-r2_dada_dd_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.rds')
-r2_dada_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.dada.done')
+if pairedEnd:
+    r2_dada_seqtab_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.rds')
+    r2_dada_dd_file = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.rds')
+    r2_dada_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.dada.done')
 DADA_FILES.append(r1_dada_seqtab_file)
 DADA_FILES.append(r1_dada_dd_file)
 DADA_FILES.append(r1_dada_marker)
-DADA_FILES.append(r2_dada_seqtab_file)
-DADA_FILES.append(r2_dada_dd_file)
-DADA_FILES.append(r2_dada_marker)
+if pairedEnd:
+    DADA_FILES.append(r2_dada_seqtab_file)
+    DADA_FILES.append(r2_dada_dd_file)
+    DADA_FILES.append(r2_dada_marker)
 
 r1_seqtab_stats = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.seqtab.stats')
 r1_seqtab_stats_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R1.seqtab.stats.done')
-r2_seqtab_stats = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.stats')
-r2_seqtab_stats_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.stats.done')
+if pairedEnd:
+    r2_seqtab_stats = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.stats')
+    r2_seqtab_stats_marker = DATA_DIR.joinpath(DADAFOLDER_NAME,'R2.seqtab.stats.done')
 STATS_FILES.append(r1_seqtab_stats)
 STATS_FILES.append(r1_seqtab_stats_marker)
-STATS_FILES.append(r2_seqtab_stats)
-STATS_FILES.append(r2_seqtab_stats_marker)
+if pairedEnd:
+    STATS_FILES.append(r2_seqtab_stats)
+    STATS_FILES.append(r2_seqtab_stats_marker)
 
 # Merge
-merge_reads_seqtab = DATA_DIR.joinpath(
-    MERGEREADSFOLDER_NAME,'seqtab.mergereads.rds')
-merge_reads_dd = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'dd.mergereads.rds')
-merge_reads_marker = DATA_DIR.joinpath(
-    MERGEREADSFOLDER_NAME,'mergereads.done')
-MERGEREADS_FILES.append(merge_reads_seqtab)
-MERGEREADS_FILES.append(merge_reads_dd)
-MERGEREADS_FILES.append(merge_reads_marker)
+if pairedEnd:
+    merge_reads_seqtab = DATA_DIR.joinpath(
+        MERGEREADSFOLDER_NAME,'seqtab.mergereads.rds')
+    merge_reads_dd = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'dd.mergereads.rds')
+    merge_reads_marker = DATA_DIR.joinpath(
+        MERGEREADSFOLDER_NAME,'mergereads.done')
+    MERGEREADS_FILES.append(merge_reads_seqtab)
+    MERGEREADS_FILES.append(merge_reads_dd)
+    MERGEREADS_FILES.append(merge_reads_marker)
 
-merge_reads_seqtab_stats = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'seqtab.mergereads.stats')
-merge_reads_seqtab_stats_marker = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'seqtab.mergereads.stats.done')
-STATS_FILES.append(merge_reads_seqtab_stats)
-STATS_FILES.append(merge_reads_seqtab_stats_marker)
+    merge_reads_seqtab_stats = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'seqtab.mergereads.stats')
+    merge_reads_seqtab_stats_marker = DATA_DIR.joinpath(MERGEREADSFOLDER_NAME,'seqtab.mergereads.stats.done')
+    STATS_FILES.append(merge_reads_seqtab_stats)
+    STATS_FILES.append(merge_reads_seqtab_stats_marker)
 
 # Bimera
 nobimera_seqtab = DATA_DIR.joinpath(
@@ -304,156 +322,325 @@ rule all:
         DEFCOM_FILES
 
 
-rule insert_stats:
-    """
-    Extract stats and write to file
-    """
-    input:
-        stats_files=STATS_FILES,
-        otu_asv_files=OTU_ASV_FILES,
-    output:
-        stats='{path}/' + PROJECT_NAME + '.insert.counts'
-    shell:
-        '''
-        python {SCRIPTFOLDER}create_insert_stats.py {wildcards.path} {output.stats}
-        '''
+if pairedEnd:
+    rule cutadapt:
+        """
+        Filter and trim fastq files, outputs trimmed reads which passed the filters 
+        - Remove primers
+        - Remove sequences where either forward or reverse primer is missing
+        - Remove multiple copies of primers
+        """
+        input:
+            r1='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            r2='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
+        output:
+            r1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            r2='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
+            r1tmp=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                       '/{sample}/{sample}.temp1_R1.fastq'),
+            r2tmp=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                       '/{sample}/{sample}.temp1_R2.fastq'),
+            r1tmp2=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                        '/{sample}/{sample}.temp2_R1.fastq'),
+            r2tmp2=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                        '/{sample}/{sample}.temp2_R2.fastq'),
+            marker=touch('{path}/' + CUTADAPTFOLDER_NAME +
+                         '/{sample}/{sample}.cutadapt.done')
+        params:
+            fwd_primer=FORWARD_PRIMER_SEQUENCE,
+            rev_primer=REVERSE_PRIMER_SEQUENCE,
+            minlength=QC_MINLEN,
+            allow_untrimmed='--discard-untrimmed' if not allowUntrimmed else ''
+        benchmark:
+            '{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.benchmark'
+        threads:
+            8
+        log:
+            command='{path}/' + CUTADAPTFOLDER_NAME + \
+                    '/{sample}/{sample}.cutadapt.command',
+            log='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.log'
+        shell:
+            '''
+            command="
+            cutadapt -O 12 {params.allow_untrimmed} -g {params.fwd_primer} -G {params.rev_primer} -o {output.r1tmp} -p {output.r2tmp} {input.r1} {input.r2} -j {threads} --pair-adapters --minimum-length 75 &> {log.log}
+            cutadapt -O 12 --times 5 -g {params.fwd_primer} -o {output.r1tmp2} -j {threads} {output.r1tmp} &>> {log.log}
+            cutadapt -O 12 --times 5 -g {params.rev_primer} -o {output.r2tmp2} -j {threads} {output.r2tmp} &>> {log.log}
+            cutadapt -o {output.r1} -p {output.r2} {output.r1tmp2} {output.r2tmp2} -j {threads} --minimum-length {params.minlength} &>> {log.log} 
+            ";
+            echo "$command" > {log.command};
+            eval "$command"
+            '''
 
-
-rule cutadapt:
-    """
-    Filter and trim fastq files, outputs trimmed reads which passed the filters 
-    - Remove primers
-    - Remove sequences where either forward or reverse primer is missing
-    - Remove multiple copies of primers
-    """
-    input:
-        r1='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
-        r2='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
-    output:
-        r1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
-        r2='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
-        r1tmp=temp('{path}/' + CUTADAPTFOLDER_NAME +
-                   '/{sample}/{sample}.temp1_R1.fastq'),
-        r2tmp=temp('{path}/' + CUTADAPTFOLDER_NAME +
-                   '/{sample}/{sample}.temp1_R2.fastq'),
-        r1tmp2=temp('{path}/' + CUTADAPTFOLDER_NAME +
-                    '/{sample}/{sample}.temp2_R1.fastq'),
-        r2tmp2=temp('{path}/' + CUTADAPTFOLDER_NAME +
-                    '/{sample}/{sample}.temp2_R2.fastq'),
-        marker=touch('{path}/' + CUTADAPTFOLDER_NAME +
-                     '/{sample}/{sample}.cutadapt.done')
-    params:
-        fwd_primer=FORWARD_PRIMER_SEQUENCE,
-        rev_primer=REVERSE_PRIMER_SEQUENCE,
-        minlength=QC_MINLEN,
-        allow_untrimmed='--discard-untrimmed' if not allowUntrimmed else ''
-    benchmark:
-        '{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.benchmark'
-    threads:
-        8
-    log:
-        command='{path}/' + CUTADAPTFOLDER_NAME + \
-                '/{sample}/{sample}.cutadapt.command',
-        log='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.log'
-    shell:
-        '''
-        command="
-        cutadapt -O 12 {params.allow_untrimmed} -g {params.fwd_primer} -G {params.rev_primer} -o {output.r1tmp} -p {output.r2tmp} {input.r1} {input.r2} -j {threads} --pair-adapters --minimum-length 75 &> {log.log}
-        cutadapt -O 12 --times 5 -g {params.fwd_primer} -o {output.r1tmp2} -j {threads} {output.r1tmp} &>> {log.log}
-        cutadapt -O 12 --times 5 -g {params.rev_primer} -o {output.r2tmp2} -j {threads} {output.r2tmp} &>> {log.log}
-        cutadapt -o {output.r1} -p {output.r2} {output.r1tmp2} {output.r2tmp2} -j {threads} --minimum-length {params.minlength} &>> {log.log} 
-        ";
-        echo "$command" > {log.command};
-        eval "$command"
-        '''
-
-rule dada2_filterAndTrim:
-    """
-    Truncate and discard reads using dada2 based on maxEE, quality score, number of N and length.
-    """
-    input:
-        marker='{path}/' + CUTADAPTFOLDER_NAME + \
-               '/{sample}/{sample}.cutadapt.done',
-        fqgz1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
-        fqgz2='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
-    output:
-        marker=touch('{path}/' + FILTERANDTRIMFOLDER_NAME +
-                     '/{sample}/{sample}.filterandtrim.done'),
-        fqgz1='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-              '/{sample}/{sample}_R1.fastq.gz',
-        fqgz2='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-              '/{sample}/{sample}_R2.fastq.gz'
-    params:
-        maxee=QC_MAXEE,
-        truncq='2',
-        maxn='0',
-        compress='TRUE',
-        minlen=QC_MINLEN,
-        trunc_R1=QC_TRUNC_R1,
-        trunc_R2=QC_TRUNC_R2
-    threads:
-        4
-    log:
-        log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-            '/{sample}/{sample}.filterandtrim.log',
-        command='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-                '/{sample}/{sample}.filterandtrim.command'
-    shell:
-        '''
-        command="
-        Rscript {SCRIPTFOLDER}dada2_filterandtrim.R {input.fqgz1} {input.fqgz2} {output.fqgz1} {output.fqgz2} {params.maxee} {params.truncq} {params.maxn} {params.compress} {params.minlen} {params.trunc_R1} {params.trunc_R2} {threads} &> {log.log}
-        ";
-        echo "$command" > {log.command};
-        eval "$command"
-        '''
-
-rule qc_stats:
-    """
-    Plot a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
-    """
-    input:
-        r1_raw='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
-        r2_raw='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
-        r1_cut='{path}/' + CUTADAPTFOLDER_NAME + \
-               '/{sample}/{sample}_R1.fastq.gz',
-        r2_cut='{path}/' + CUTADAPTFOLDER_NAME + \
-               '/{sample}/{sample}_R2.fastq.gz',
-        marker_cut='{path}/' + CUTADAPTFOLDER_NAME + \
+    rule dada2_filterAndTrim:
+        """
+        Truncate and discard reads using dada2 based on maxEE, quality score, number of N and length.
+        """
+        input:
+            marker='{path}/' + CUTADAPTFOLDER_NAME + \
                    '/{sample}/{sample}.cutadapt.done',
-        r1_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-               '/{sample}/{sample}_R1.fastq.gz',
-        r2_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-               '/{sample}/{sample}_R2.fastq.gz',
-        marker_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-                   '/{sample}/{sample}.filterandtrim.done'
-    output:
-        pdf='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-            '/{sample}/{sample}.qc.stats.pdf'
-    log:
-        log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
-            '/{sample}/{sample}.qc.stats.log'
-    shell:
-        '''
-        Rscript {SCRIPTFOLDER}qc_stats.R {input.r1_raw} {input.r2_raw} {input.r1_cut} {input.r2_cut} {input.r1_fil} {input.r2_fil} {output.pdf} &> {log.log}
-        '''
+            fqgz1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            fqgz2='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
+        output:
+            marker=touch('{path}/' + FILTERANDTRIMFOLDER_NAME +
+                         '/{sample}/{sample}.filterandtrim.done'),
+            fqgz1='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                  '/{sample}/{sample}_R1.fastq.gz',
+            fqgz2='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                  '/{sample}/{sample}_R2.fastq.gz'
+        params:
+            maxee=QC_MAXEE,
+            truncq='2',
+            maxn='0',
+            compress='TRUE',
+            minlen=QC_MINLEN,
+            trunc_R1=QC_TRUNC_R1,
+            trunc_R2=QC_TRUNC_R2
+        threads:
+            4
+        log:
+            log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.filterandtrim.log',
+            command='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                    '/{sample}/{sample}.filterandtrim.command'
+        shell:
+            '''
+            command="
+            Rscript {SCRIPTFOLDER}dada2_filterandtrim.R {input.fqgz1} {input.fqgz2} {output.fqgz1} {output.fqgz2} {params.maxee} {params.truncq} {params.maxn} {params.compress} {params.minlen} {params.trunc_R1} {params.trunc_R2} {threads} &> {log.log}
+            ";
+            echo "$command" > {log.command};
+            eval "$command"
+            '''
+
+    rule r1r2_sample_files:
+        """
+        Create a file with sample names and the matching fastq file
+        """
+        input:
+            FILTERANDTRIM_FILES
+        output:
+            r1_samples = '{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1.samples',
+            r2_samples = "" if not pairedEnd else '{path}/' + FILTERANDTRIMFOLDER_NAME + '/r2.samples',
+            marker = touch('{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1r2.samples.done'),
+        params:
+            project_folder = DATA_DIR
+        shell:
+            '''
+            python {SCRIPTFOLDER}create_samples_files.py {params.project_folder} {output.r1_samples} {output.r2_samples}
+            '''
+
+    rule qc_stats:
+        """
+        Plot a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
+        """
+        input:
+            r1_raw='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            r2_raw="" if not pairedEnd else '{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R2.fastq.gz',
+            r1_cut='{path}/' + CUTADAPTFOLDER_NAME + \
+                   '/{sample}/{sample}_R1.fastq.gz',
+            r2_cut="" if not pairedEnd else '{path}/' + CUTADAPTFOLDER_NAME + \
+                   '/{sample}/{sample}_R2.fastq.gz',
+            marker_cut='{path}/' + CUTADAPTFOLDER_NAME + \
+                       '/{sample}/{sample}.cutadapt.done',
+            r1_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                   '/{sample}/{sample}_R1.fastq.gz',
+            r2_fil="" if not pairedEnd else '{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                   '/{sample}/{sample}_R2.fastq.gz',
+            marker_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                       '/{sample}/{sample}.filterandtrim.done'
+        output:
+            pdf='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.qc.stats.pdf'
+        log:
+            log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.qc.stats.log'
+        shell:
+            '''
+            Rscript {SCRIPTFOLDER}qc_stats.R {input.r1_raw} {input.r2_raw} {input.r1_cut} {input.r2_cut} {input.r1_fil} {input.r2_fil} {output.pdf} &> {log.log}
+            '''
+    rule read_stats:
+        """
+        Run bbmap: change quality encoding (qin) and run stats to check quality
+        """
+        input:
+            fqz1='{sample}_R1.fastq.gz',
+            fqz2='{sample}_R2.fastq.gz',
+        output:
+            marker=touch('{sample}.readstats.done'),
+            bhist='{sample}.readstats.bhist',
+            qhist='{sample}.readstats.qhist',
+            qchist='{sample}.readstats.qchist',
+            aqhist='{sample}.readstats.aqhist',
+            bqhist='{sample}.readstats.bqhist',
+            lhist='{sample}.readstats.lhist',
+            gchist='{sample}.readstats.gchist'
+        log:
+            '{sample}.readstats.log'
+        threads:
+            4
+        shell:
+            '''
+            reformat.sh -Xmx8G pigz=t bgzip=f threads={threads} qin=33 in1={input.fqz1} in2={input.fqz2} bhist={output.bhist} qhist={output.qhist} qchist={output.qchist} aqhist={output.aqhist} bqhist={output.bqhist} lhist={output.lhist} gchist={output.gchist} 2> {log}
+            '''
+    rule insert_stats:
+        """
+        Extract stats and write to file.
+        """
+        input:
+            stats_files=STATS_FILES,
+            otu_asv_files=OTU_ASV_FILES,
+        output:
+            stats='{path}/' + PROJECT_NAME + '.insert.counts'
+        shell:
+            '''
+            python {SCRIPTFOLDER}create_insert_stats.py {wildcards.path} {output.stats} {pairedEnd}
+            '''
 
 
-rule r1r2_sample_files:
-    """
-    Create a file with sample names and the matching fastq file
-    """
-    input:
-        FILTERANDTRIM_FILES
-    output:
-        r1_samples='{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1.samples',
-        r2_samples='{path}/' + FILTERANDTRIMFOLDER_NAME + '/r2.samples',
-        marker=touch('{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1r2.samples.done'),
-    params:
-        project_folder=DATA_DIR
-    shell:
-        '''
-        python {SCRIPTFOLDER}create_samples_files.py {params.project_folder} {output.r1_samples} {output.r2_samples}
-        '''
+
+if not pairedEnd:
+    rule cutadapt:
+        """
+        Filter and trim fastq files, outputs trimmed reads which passed the filters 
+        - Remove primers
+        - Remove sequences where primer is missing
+        - Remove multiple copies of primers
+        """
+        input:
+            r1='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+        output:
+            r1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            r1tmp=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                       '/{sample}/{sample}.temp1_R1.fastq'),
+            r1tmp2=temp('{path}/' + CUTADAPTFOLDER_NAME +
+                        '/{sample}/{sample}.temp2_R1.fastq'),
+            marker=touch('{path}/' + CUTADAPTFOLDER_NAME +
+                         '/{sample}/{sample}.cutadapt.done')
+        params:
+            fwd_primer=FORWARD_PRIMER_SEQUENCE,
+            minlength=QC_MINLEN,
+            allow_untrimmed='--discard-untrimmed' if not allowUntrimmed else ''
+        benchmark:
+            '{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.benchmark'
+        threads:
+            8
+        log:
+            command='{path}/' + CUTADAPTFOLDER_NAME + \
+                    '/{sample}/{sample}.cutadapt.command',
+            log='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}.cutadapt.log'
+        shell:
+            '''
+            command="
+            cutadapt -O 12 {params.allow_untrimmed} -g {params.fwd_primer} -o {output.r1tmp} {input.r1} -j {threads} --minimum-length 75 &> {log.log}
+            cutadapt -O 12 --times 5 -g {params.fwd_primer} -o {output.r1tmp2} -j {threads} {output.r1tmp} &>> {log.log}
+            cutadapt -o {output.r1} {output.r1tmp2} -j {threads} --minimum-length {params.minlength} &>> {log.log} 
+            ";
+            echo "$command" > {log.command};
+            eval "$command"
+            '''
+
+    rule dada2_filterAndTrim:
+        """
+        Truncate and discard reads using dada2 based on maxEE, quality score, number of N and length.
+        """
+        input:
+            marker='{path}/' + CUTADAPTFOLDER_NAME + \
+                   '/{sample}/{sample}.cutadapt.done',
+            fqgz1='{path}/' + CUTADAPTFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+        output:
+            marker=touch('{path}/' + FILTERANDTRIMFOLDER_NAME +
+                         '/{sample}/{sample}.filterandtrim.done'),
+            fqgz1='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                  '/{sample}/{sample}_R1.fastq.gz',
+        params:
+            maxee=QC_MAXEE,
+            truncq='2',
+            maxn='0',
+            compress='TRUE',
+            minlen=QC_MINLEN,
+            trunc_R1=QC_TRUNC_R1,
+        threads:
+            4
+        log:
+            log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.filterandtrim.log',
+            command='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                    '/{sample}/{sample}.filterandtrim.command'
+        shell:
+            '''
+            command="
+            Rscript {SCRIPTFOLDER}dada2_filterandtrim.R {input.fqgz1} {output.fqgz1} {params.maxee} {params.truncq} {params.maxn} {params.compress} {params.minlen} {params.trunc_R1} {threads} &> {log.log}
+            ";
+            echo "$command" > {log.command};
+            eval "$command"
+            '''
+
+    rule r1r2_sample_files:
+        """
+        Create a file with sample names and the matching fastq file
+        """
+        input:
+            FILTERANDTRIM_FILES
+        output:
+            r1_samples='{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1.samples',
+            marker=touch('{path}/' + FILTERANDTRIMFOLDER_NAME + '/r1r2.samples.done'),
+        params:
+            project_folder=DATA_DIR
+        shell:
+            '''
+            python {SCRIPTFOLDER}create_samples_files.py {params.project_folder} {output.r1_samples}
+            '''
+
+
+    rule qc_stats:
+        """
+        Plot a visual summary of the distribution of quality scores as a function of sequence position for the input fastq file
+        """
+        input:
+            r1_raw='{path}/' + RAWFOLDER_NAME + '/{sample}/{sample}_R1.fastq.gz',
+            r1_cut='{path}/' + CUTADAPTFOLDER_NAME + \
+                   '/{sample}/{sample}_R1.fastq.gz',
+            marker_cut='{path}/' + CUTADAPTFOLDER_NAME + \
+                       '/{sample}/{sample}.cutadapt.done',
+            r1_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                   '/{sample}/{sample}_R1.fastq.gz',
+            marker_fil='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                       '/{sample}/{sample}.filterandtrim.done'
+        output:
+            pdf='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.qc.stats.pdf'
+        log:
+            log='{path}/' + FILTERANDTRIMFOLDER_NAME + \
+                '/{sample}/{sample}.qc.stats.log'
+        shell:
+            '''
+            Rscript {SCRIPTFOLDER}qc_stats.R {input.r1_raw} {input.r1_cut} {input.r1_fil} {output.pdf} &> {log.log}
+            '''
+
+    rule read_stats:
+        """
+        Run bbmap: change quality encoding (qin) and run stats to check quality
+        """
+        input:
+            fqz1='{sample}_R1.fastq.gz',
+        output:
+            marker=touch('{sample}.readstats.done'),
+            bhist='{sample}.readstats.bhist',
+            qhist='{sample}.readstats.qhist',
+            qchist='{sample}.readstats.qchist',
+            aqhist='{sample}.readstats.aqhist',
+            bqhist='{sample}.readstats.bqhist',
+            lhist='{sample}.readstats.lhist',
+            gchist='{sample}.readstats.gchist'
+        log:
+            '{sample}.readstats.log'
+        threads:
+            4
+        shell:
+            '''
+            reformat.sh -Xmx8G pigz=t bgzip=f threads={threads} qin=33 in1={input.fqz1} bhist={output.bhist} qhist={output.qhist} qchist={output.qchist} aqhist={output.aqhist} bqhist={output.bqhist} lhist={output.lhist} gchist={output.gchist} 2> {log}
+            '''
+
+
 
 rule dada2_learnErrors:
     """
@@ -560,8 +747,8 @@ rule bimera_removal:
     Remove bimeric sequences that are formed de novo during the sequencing process.
     """
     input:
-        marker='{path}/' + MERGEREADSFOLDER_NAME + '/mergereads.done',
-        merged_seqtab='{path}/' + MERGEREADSFOLDER_NAME + \
+        marker='{path}/' + DADAFOLDER_NAME + '/R1.dada.done' if not pairedEnd else '{path}/' + MERGEREADSFOLDER_NAME + '/mergereads.done',
+        seqtab='{path}/' + DADAFOLDER_NAME + '/R1.seqtab.rds' if not pairedEnd else '{path}/' + MERGEREADSFOLDER_NAME + \
                       '/seqtab.mergereads.rds',
     output:
         tab_nobim='{path}/' + BIMERAREMOVALFOLDER_NAME + \
@@ -577,7 +764,7 @@ rule bimera_removal:
     shell:
         '''
         command="
-        Rscript {SCRIPTFOLDER}remove_bimera.R {input.merged_seqtab} {output.tab_nobim} {threads} &> {log.log}
+        Rscript {SCRIPTFOLDER}remove_bimera.R {input.seqtab} {output.tab_nobim} {threads} &> {log.log}
         ";
         echo "$command" > {log.command};
         eval "$command"
@@ -639,30 +826,6 @@ rule otu_asv:
         eval "$command"
         '''
 
-rule read_stats:
-    """
-    Run bbmap: change quality encoding (qin) and run stats to check quality
-    """
-    input:
-        fqz1='{sample}_R1.fastq.gz',
-        fqz2='{sample}_R2.fastq.gz',
-    output:
-        marker=touch('{sample}.readstats.done'),
-        bhist='{sample}.readstats.bhist',
-        qhist='{sample}.readstats.qhist',
-        qchist='{sample}.readstats.qchist',
-        aqhist='{sample}.readstats.aqhist',
-        bqhist='{sample}.readstats.bqhist',
-        lhist='{sample}.readstats.lhist',
-        gchist='{sample}.readstats.gchist'
-    log:
-        '{sample}.readstats.log'
-    threads:
-        4
-    shell:
-        '''
-        reformat.sh -Xmx8G pigz=t bgzip=f threads={threads} qin=33 in1={input.fqz1} in2={input.fqz2} bhist={output.bhist} qhist={output.qhist} qchist={output.qchist} aqhist={output.aqhist} bqhist={output.bqhist} lhist={output.lhist} gchist={output.gchist} 2> {log}
-        '''
 
 rule seqtab_stats:
     """

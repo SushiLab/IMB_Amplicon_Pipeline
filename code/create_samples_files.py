@@ -3,7 +3,8 @@ import glob
 
 data_dir = sys.argv[1]
 r1_file = sys.argv[2]
-r2_file = sys.argv[3]
+if len(sys.argv) == 4:
+    r2_file = sys.argv[3]
 
 
 def create_file_with_samples_and_file_paths(out_file, orientation, data_directory):
@@ -38,4 +39,5 @@ def create_file_with_samples_and_file_paths(out_file, orientation, data_director
 
 
 create_file_with_samples_and_file_paths(r1_file, 'R1.fastq.gz', data_dir)
-create_file_with_samples_and_file_paths(r2_file, 'R2.fastq.gz', data_dir)
+if len(sys.argv) == 4:
+    create_file_with_samples_and_file_paths(r2_file, 'R2.fastq.gz', data_dir)
