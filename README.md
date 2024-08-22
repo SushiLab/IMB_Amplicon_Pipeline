@@ -7,10 +7,11 @@ This pipeline performs all steps that we consider primary analysis of amplicon r
 - The primers file is now available in the templates folder.
 - `runUSEARCH`: Now performs USEARCH sequence alignment against the Silva database & last common ancestor search for ASVs as well. (this can take a few hours depending on data size) Please note that we are using a [minimum sequence identity](https://drive5.com/usearch/manual/opt_id.html) of 0.8 for a hit, which will lead to false positives. Double check the actual sequence identity shown in the output.
 - We added `split_snake.py`, which is a snakemake pipeline that separates mixed orientation reads into separate files. After separating the reads, you will have 4 files: forward R1, reverse R1, forward R2 and reverse R2. Remember to analyze the R1 and R2 files then separately, to train the error model properly (run the pipeline twice: once on fw R1 & rv R1 and once on fw R2 & rv R2).
+- The pipeline now supports single end data. Please see the new option in the config file. Two features are not yet supported for single ended reads: estimate parameters and insert_stats.
 
 **AUTHORS: [Hans](https://github.com/hjruscheweyh), [Lilith](https://github.com/lilithfeer), [Chris](https://github.com/cmfield)**
 
-**Documentation was last updated on 2024-04-30.**
+**Documentation was last updated on 2024-08-22.**
 
 ## Steps of the IMB Amplicon Pipeline
 This paragraph is a summary of the individual steps executed in the pipeline.
@@ -19,7 +20,7 @@ This paragraph is a summary of the individual steps executed in the pipeline.
 
 In the first step we:
 
-1. Remove forward and reverse primers from the paired-end reads. 
+1. Remove forward and reverse primers from the paired-end reads or primers from single-end reads. 
 2. Remove inserts where either forward or reverse primer is missing (or both).
 3. Remove multiple copies of primers --> There are few cases in which primer sequence appears multiple times in a single sequence.
 
@@ -31,14 +32,14 @@ If you set `allowUntrimmed` to `True` in the `config.yaml`, then it will not dis
 
 In this step we:
 
-1. Trim a predefined number of bases from the end of every sequence - As many as possible so that we can still merge the reads. These parameters need to be set on the config file and need to be chosen based on the insert size. Trimming too many bases will make reads fail to merge and lead to empty ASV tables. The estimate_parameters.py script suggests parameters depending on the primer pair.
+1. Trim a predefined number of bases from the end of every sequence - As many as possible, for paired-end it is important that we can still merge the reads. These parameters need to be set on the config file and need to be chosen based on the insert size. Trimming too many bases on paired end reads will make reads fail to merge and lead to empty ASV tables. The estimate_parameters.py script suggests parameters depending on the primer pair.
 2. Perform quality control. Removing sequences where the number of estimated errors is > X where X is a predefined setting (defined in the `config.yaml`).   
 
 ### Error Learning - `dada2`  (`runLearnErrors` Step in the Config File)
 
 In this step we try to infer an error model using a predefined number of bases. 
 
-This step has to be executed twice - once for the forward reads, once for the reverse reads.
+For paired end reads, this step is executed twice - once for the forward reads, once for the reverse reads.
 
 ### ASV Inference - `dada2`  (`runInference` Step in the Config File)
 
@@ -46,11 +47,12 @@ In this step we run the actual dada2 inference which will create the ASVs.
 
 ### Read Merging - `dada2`  (`runMergeReads` Step in the Config File)
 
+This option is for merging paired-end reads.
 So far, we have been working on paired-end reads but not on full length inserts. This step will merge reads into a new set of ASVs. Check the number of bases trimmed in the quality control section when too few inserts merge.
 
 ### Bimera Removal - `dada2`  (`runRemoveBimeras` Step in the Config File)
 
-`dada2` will use the merged ASVs as input to remove potential bimeras and chimeras. The output file contains the final but unannotated ASVs. 
+`dada2` will use the merged ASVs (paired-end) or the inferred ASVs (single-end) as input to remove potential bimeras and chimeras. The output file contains the final but unannotated ASVs. 
 
 ### Taxonomic Annotation/ASV Table Generation  (`runASVTax` Step in the Config File)
 
@@ -73,7 +75,8 @@ It also uses the reference sequences in ASV resolution within `dada2`.
 ## Limitations
 ### Mixed Orientations 
 
-Genoscope produces amplicon sequencing data where 1/2 reads start with the forward and the other half with the reverse primer. We have a pipeline for that but this is not included here. If you see that you get consistently ~50% of the reads through cutadapt, then you might need to check for the orientations.
+Genoscope produces amplicon sequencing data where 1/2 reads start with the forward and the other half with the reverse primer. If you see that you get consistently ~50% of the reads through cutadapt, then you might need to check for the orientations.
+Use the `split_snake.py` pipeline to split the reads into forward and reverse reads and then run the pipeline twice (once for R1 and once for R2 reads) to train the error model properly. For the reverse primers you may have to use the reverse complement of the primer sequence. Merge the sequence tables after the inference step and run the remainder of the pipe on that data. Depending on your setup, the data at hand may not be mergeable even though there are forward and reverse reads (e.g. iSeq data with primer pairs that are far apart). In that case run the single end version of the pipeline on the sequences with the forward primers after splitting them using `split_snake.py` (R1 forward and R2 reverse).
 
 ### N
 
@@ -82,7 +85,7 @@ Reads containing non `ACTG` bases such as `N` can not be processed by dada. This
 
 ## How to run the Pipeline
 
-The pipeline has been written to deal with short read Illumina sequencing data in the format of paired-end fastq files. All runs are processed together so that files/data that come from different batches/flowcells/flowlanes have to be run individually, e.g, as a different `(Sub)Project`.  
+The pipeline has been written to deal with short read Illumina sequencing data in the format of paired-end or single-end fastq files. All runs are processed together so that files/data that come from different batches/flowcells/flowlanes have to be run individually, e.g, as a different `(Sub)Project`.  
 
 ### Installations needed
 
@@ -140,7 +143,7 @@ In this section, we will cover the structure of the input data.
 
 ####  File Format
 
-The pipeline has been written to deal with short read Illumina sequencing data in the format of gzipped paired-end fastq files.
+The pipeline has been written to deal with short read Illumina sequencing data in the format of gzipped paired-end or single-end fastq files.
 
 ####  Naming
 
@@ -231,6 +234,7 @@ LE_NBASES: '1e7' # The minimum number of total bases to use for error rate learn
 ##################
 ## STEPS TO RUN ##
 ##################
+pairedEnd: True
 runCutadapt: True
 allowUntrimmed: False
 runQC: True
@@ -266,7 +270,7 @@ NAME24-1_A_451_SUSHI_METAB
 NAME24-1_neg_mini_SUSHI_METAB
 ```
 
-Example `blocklist` file: 
+Example `blocklist` file. Note that this sample is also in the `samples` file: 
 
 ```bash
 NAME24-1_neg_mini_SUSHI_METAB
@@ -328,7 +332,7 @@ ls ../0raw/ | sort > samples # will create the samples file if you follow the sa
 
 #### Estimating Parameters
 
-In order to set the appropriate user parameters in the script, we will run `estimate_parameters.py`, which will create a file called `estimated_parameters.txt` as shown in the Parameters section below.
+In order to set the appropriate user parameters in the script, we will run `estimate_parameters.py`, which will create a file called `estimated_parameters.txt` as shown in the Parameters section below. **Note that estimating parameters currently only works with paired-end reads.**
 
 ##### Primer Pairs
 
@@ -394,6 +398,7 @@ And set the steps you would like to run to `True`, for example:
 ##################
 ## STEPS TO RUN ##
 ##################
+pairedEnd: True
 runCutadapt: True
 allowUntrimmed: False
 runQC: True
@@ -487,7 +492,8 @@ asv_022 (none)                8                         9                       
 ```
 
 ### NAME24-1.insert.counts
-This file contains insert counts for each step of the pipeline. Inserts consist of 2 paired end reads.
+This file contains insert counts for each step of the pipeline. Inserts consist of 2 paired-end reads. This file is only created for paired-end reads
+
 ```bash
 sample  			0raw	1cutadapt	2filterAndTrim	4sampleInference_R1	4sampleInference_R2	5mergeReads	6bimeraRemoval	8asv_counts	8otu_counts
 NAME24-1_Sample_1_METAB      	914802 	908413  	860250  	859721  		859781  		856405  	757325  	757325  	757010
