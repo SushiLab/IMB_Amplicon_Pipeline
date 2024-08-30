@@ -357,7 +357,7 @@ You can read more on the parameters here:
 
 ##### Read Length (`TRUNCLENR1` and `TRUNCLENR2`)
 
-`dada2` tries to infer amplicon sequencing variants from quality controlled sequencing data. `dada2` would work best when there would be no errors in the sequencing data. Quality of bases usually drops the closer you are to the end of the sequence. `dada2`, therefore, suggests the following: Trim as many bases from the end of the read so that forward and reverse read can still merge. Also, trim more from the reverse read as the forward read generally has a higher quality. 
+`dada2` tries to infer amplicon sequencing variants from quality controlled sequencing data and it would work best when there were no errors in the sequencing data. Quality of bases usually drops the closer you are to the end of the sequence, which is why we cut off the read towards the end. `dada2` suggests the following: Trim as many bases from the end of the read so that forward and reverse read can still merge. Also, trim more from the reverse read as the forward read generally has a higher quality. 
 
 #####  Errors (`MAXEE`)
 
@@ -365,7 +365,7 @@ You can read more on the parameters here:
 
 ##### Sequences with Ns (`R1_READS_W_N` and `R2_READS_W_N`)
 
-`dada2` can't deal with sequences that contain the base `N`. That is why we remove sequences that contain this base. However, sometimes you will have a run where you have one bad cycle and the base at that specific position is set to `N` in all sequences. `dada2` allows to also remove bases from the beginning. This is not part of this standard pipeline but the existence of `N` in your data is reported by the `estimate_parameters.py` script.
+`dada2` can't deal with sequences that contain the base `N`, which is why we remove sequences that contain this base. The existence of `N` in your data is reported by the `estimate_parameters.py` script. Sometimes you will have a run where you have one bad cycle and the base at that specific position is set to `N` in all sequences, which will remove all of your sequences when running the pipeline. If that `N` is in the beginning of the sequence, you could use `dada2` to remove bases from the beginning, but this is not part of the pipeline.
 
 
 In the following command, `estimate_parameters.py` will output a file called `estimated_parameters.txt` which contains the information mentioned above:
