@@ -299,7 +299,9 @@ if not runUSEARCH:
     USEARCH_DIR = []
 if not runDefCom:
     DEFCOM_FILES = []
-
+if not pairedEnd:
+    STATS_FILES = []
+    STATS_FILES_TOT = []
 """
 In general the rules are run in the following order:
 cutadapt, read_stats, dada2_filterAndTrim, qc_stats, r1r2_sample_files, dada2_learnErrors, dada2_inference,
@@ -862,7 +864,7 @@ rule ref_assignment:
         32
     shell:
         '''
-        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} {params.threads}&> {log.log}
+        Rscript {SCRIPTFOLDER}assign_to_refs.R {input.asvtab} {input.asvs_fasta} {params.ref_fasta} 4 {output.asvs_ref} {params.threads} &> {log.log}
         '''
 
 rule uparse:

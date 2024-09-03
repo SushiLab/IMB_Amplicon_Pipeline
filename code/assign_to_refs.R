@@ -74,7 +74,12 @@ crows <- lapply(found_refs, function(x) colSums(asvtab[asvtab$assignment == x, 7
 reftab <- do.call(rbind, crows)
 rownames(reftab) <- found_refs
 ambitab <- asvtab[asvtab$assignment == "ambiguous", 7:ncol(asvtab)]
-rownames(ambitab) <- paste(asvs[asvtab$assignment == "ambiguous"], "(ambiguous)")
+
+try(rownames(ambitab) <- paste(asvs[asvtab$assignment == "ambiguous"], "(ambiguous)"))
+if (length(rownames(ambitab))==0){
+    ambitab <- data.frame(row.names="(ambiguous)")
+}
+
 nonetab <- asvtab[asvtab$assignment == "none", 7:ncol(asvtab)]
 rownames(nonetab) <- paste(asvs[asvtab$assignment == "none"], "(none)")
 fintab <- rbind(reftab, ambitab, nonetab)
